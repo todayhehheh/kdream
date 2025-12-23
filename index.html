@@ -12,52 +12,81 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --primary: #4A90E2; --bg: #F4F7F6; --card: #FFFFFF; --text: #333; --danger: #E74C3C; }
         
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 900px; margin: 0 auto; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-top: 60px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+        
+        /* [진행률 표시바 스타일] */
+        #progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 50px; background: white; z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; padding: 0 20px; box-sizing: border-box;
+        }
+        #progress-bg { width: 100%; height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin-right: 15px; }
+        #progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease; }
+        #progress-text { font-weight: bold; color: var(--primary); white-space: nowrap; width: 40px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
         .card { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        h1, h2 { text-align: center; color: #2C3E50; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 1.1em; }
-        input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        h1, h2 { text-align: center; color: #2C3E50; margin-top: 0; }
+        .input-group { margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; }
+        .input-group:last-child { border-bottom: none; }
+        
+        label { display: block; font-weight: bold; margin-bottom: 10px; font-size: 1.1em; color: #2c3e50; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; }
         input:focus, select:focus { border-color: var(--primary); outline: none; }
 
-        .q-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .q-text { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; word-break: keep-all; }
+        /* 체크박스 그룹 스타일 */
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .checkbox-group label {
+            background: #fff; border: 2px solid #eee; padding: 10px 15px; border-radius: 20px; cursor: pointer;
+            font-size: 0.95em; font-weight: normal; margin: 0; transition: 0.2s;
+        }
+        .checkbox-group input { display: none; }
+        .checkbox-group label:has(input:checked) { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* 척도 문항 카드 */
+        .q-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 25px; margin-bottom: 15px; scroll-margin-top: 70px; }
+        .q-text { font-size: 1.25em; font-weight: bold; margin-bottom: 20px; word-break: keep-all; }
         
         .options { display: flex; gap: 5px; }
         .options label { 
-            flex: 1; text-align: center; padding: 15px 5px; border: 2px solid #eee; border-radius: 10px; cursor: pointer; 
-            font-size: 0.95em; display: flex; flex-direction: column; justify-content: center; transition: 0.2s; background: #fff;
+            flex: 1; text-align: center; padding: 15px 2px; border: 2px solid #eee; border-radius: 10px; cursor: pointer; 
+            font-size: 0.9em; display: flex; flex-direction: column; justify-content: center; transition: 0.2s; background: #fff; margin: 0; font-weight: normal;
         }
         .options input { display: none; }
         .options label:has(input:checked) { background: #EBF5FB; border-color: var(--primary); color: var(--primary); font-weight: bold; }
 
-        .btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn.secondary { background: #95A5A6; }
         
         .hidden { display: none !important; }
         .danger-text { color: var(--danger); font-weight: bold; }
 
+        /* [인쇄 스타일] */
         @media print {
-            body { background: white; padding: 0; font-size: 11pt; }
-            .no-print, .btn, .input-group, #youth-view, #admin-login { display: none !important; }
+            body { background: white; padding: 0; font-size: 10pt; }
+            #progress-container, .no-print, .btn, .input-group, #youth-view, #admin-login { display: none !important; }
             #report-area { display: block !important; }
             .card { box-shadow: none; border: none; padding: 0; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
-            th, td { border: 1px solid #000; padding: 5px 8px; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 9pt; }
+            th, td { border: 1px solid #000; padding: 4px 6px; text-align: center; word-break: keep-all; }
             th { background-color: #f0f0f0; font-weight: bold; }
-            .section-header { font-size: 13pt; font-weight: bold; border-bottom: 2px solid #000; margin: 20px 0 10px 0; padding-bottom: 5px; }
+            .text-left { text-align: left; }
+            .section-header { font-size: 12pt; font-weight: bold; border-bottom: 2px solid #000; margin: 15px 0 5px 0; padding-bottom: 3px; }
             .page-break { page-break-before: always; }
         }
     </style>
 </head>
 <body>
 
+<div id="progress-container" class="hidden">
+    <div id="progress-bg"><div id="progress-bar"></div></div>
+    <div id="progress-text">0%</div>
+</div>
+
 <div id="youth-view" class="container">
     <div id="step-login" class="card">
         <h1>🌱 꿈드림 통합 진단</h1>
-        <p style="text-align:center; color:#666;">환영합니다. (시스템: kdream)</p>
+        <p style="text-align:center; color:#666;">환영합니다. 본 설문은 여러분을 더 잘 돕기 위한 기초 자료입니다.</p>
         <div class="input-group">
             <label>이름</label>
             <input type="text" id="userName" placeholder="이름을 입력하세요">
@@ -71,50 +100,117 @@
     </div>
 
     <div id="step-survey" class="card hidden">
-        <h2>📋 1. 기초 정보 및 희망 서비스</h2>
+        <h2>📋 기초 정보 및 희망 서비스</h2>
+        <p style="text-align:center; color:#666; font-size:0.9em; margin-bottom:20px;">※ 해당되는 내용에 정확하게 체크해 주세요.</p>
+        
         <div class="input-group">
-            <label>1. 학교를 그만둔(중단한) 주된 이유는? (가장 큰 이유)</label>
+            <label>1. 학업 중단 시기 (언제 학교를 그만두었나요?)</label>
+            <select id="dropPeriod">
+                <option value="">선택해주세요</option>
+                <option value="초등학교">초등학교 시기</option>
+                <option value="중학교">중학교 시기</option>
+                <option value="고등학교">고등학교 시기</option>
+                <option value="미진학">상급학교 미진학(중/고)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>2. 학업 중단 사유 (가장 큰 이유 하나만)</label>
             <select id="dropReason">
                 <option value="">선택해주세요</option>
-                <option value="심리">심리·정서적 문제 (우울, 불안 등)</option>
-                <option value="학업">원하는 공부를 하기 위해 (검정고시, 대안학교)</option>
-                <option value="학교부적응">학교 친구/선생님과의 관계 어려움</option>
-                <option value="특기">특기/소질을 살리기 위해</option>
-                <option value="경제">경제적 사정 때문에</option>
+                <option value="심리">심리·정서적 어려움 (우울, 불안, 대인기피 등)</option>
+                <option value="학업">원하는 공부를 하기 위해 (검정고시, 대안교육 등)</option>
+                <option value="학교부적응">학교 규칙/선생님과의 갈등, 학교폭력 등</option>
+                <option value="특기">특기/적성(예체능 등)을 살리기 위해</option>
+                <option value="경제">가정 형편 및 경제적 사정</option>
+                <option value="건강">건강 문제 (질병, 사고 등)</option>
                 <option value="기타">기타</option>
             </select>
         </div>
+
         <div class="input-group">
-            <label>2. 현재 겪고 있는 가장 큰 어려움은? (중복 가능)</label>
-            <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="진로"> 진로 결정/준비</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="가족"> 가족 갈등</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="친구"> 친구 관계</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="심리"> 우울/무기력</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="스마트폰"> 스마트폰/게임</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="학업"> 공부의 어려움</label>
-                <label style="font-weight:normal;"><input type="checkbox" class="difficulty" value="경제"> 경제적 어려움</label>
-            </div>
-        </div>
-        <div class="input-group">
-            <label>3. 센터에서 가장 받고 싶은 서비스는? (1순위)</label>
-            <select id="want1">
-                <option value="">선택해주세요</option>
-                <option value="상담">상담지원 (심리, 진로, 가족상담)</option>
-                <option value="교육">교육지원 (검정고시, 수능, 복학)</option>
-                <option value="자립">자립지원 (자격증, 인턴십, 기술훈련)</option>
-                <option value="활동">활동지원 (동아리, 캠프, 문화체험)</option>
-                <option value="생활">생활지원 (급식, 건강검진, 교통비)</option>
+            <label>3. 현재 거주 형태 (누구와 살고 있나요?)</label>
+            <select id="livingType">
+                <option value="부모">부모님과 함께 거주</option>
+                <option value="한부모">한부모(어머니 또는 아버지)와 거주</option>
+                <option value="조손">조부모님과 거주</option>
+                <option value="친척">친척집 거주</option>
+                <option value="시설">청소년 쉼터/시설 거주</option>
+                <option value="자취">혼자 거주 (자취/고시원)</option>
+                <option value="친구">친구와 함께 거주</option>
             </select>
         </div>
+
+        <div class="input-group">
+            <label>4. 주관적 경제 수준 (본인이 생각하기에)</label>
+            <div class="options">
+                <label><input type="radio" name="econ" value="상">넉넉함</label>
+                <label><input type="radio" name="econ" value="중">보통</label>
+                <label><input type="radio" name="econ" value="하">어려움</label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>5. 향후 진로 계획 (앞으로 무엇을 하고 싶나요?)</label>
+            <select id="futurePlan">
+                <option value="">선택해주세요</option>
+                <option value="상급학교">상급학교 진학 (고교/대학)</option>
+                <option value="검정고시">검정고시 합격</option>
+                <option value="취업">취업 (돈을 벌고 싶음)</option>
+                <option value="기술습득">기술 습득 / 자격증 취득</option>
+                <option value="미정">아직 정하지 못함 (탐색 중)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>6. 현재 가장 어려운 점 (중복 체크 가능)</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="difficulty" value="진로"> 진로문제</label>
+                <label><input type="checkbox" class="difficulty" value="학업"> 학업중단</label>
+                <label><input type="checkbox" class="difficulty" value="가족"> 가족갈등</label>
+                <label><input type="checkbox" class="difficulty" value="친구"> 대인관계</label>
+                <label><input type="checkbox" class="difficulty" value="성격"> 성격/정서</label>
+                <label><input type="checkbox" class="difficulty" value="비행"> 비행/일탈</label>
+                <label><input type="checkbox" class="difficulty" value="경제"> 경제적 어려움</label>
+                <label><input type="checkbox" class="difficulty" value="건강"> 신체건강</label>
+                <label><input type="checkbox" class="difficulty" value="스마트폰"> PC/스마트폰</label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>7. 센터에서 받고 싶은 서비스 (1순위)</label>
+            <select id="want1">
+                <option value="">선택해주세요</option>
+                <option value="상담">상담지원 (심리, 진로, 가족 등)</option>
+                <option value="교육">교육지원 (검정고시, 복학, 학습멘토링)</option>
+                <option value="직업">직업체험 및 자립지원 (자격증, 인턴십)</option>
+                <option value="문화">문화예술/동아리 활동</option>
+                <option value="건강">건강증진 (건강검진 등)</option>
+                <option value="생활">생활지원 (급식, 교통비, 생필품)</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>8. 센터에서 받고 싶은 서비스 (2순위)</label>
+            <select id="want2">
+                <option value="">선택해주세요</option>
+                <option value="없음">없음</option>
+                <option value="상담">상담지원</option>
+                <option value="교육">교육지원</option>
+                <option value="직업">직업체험 및 자립지원</option>
+                <option value="문화">문화예술/동아리 활동</option>
+                <option value="건강">건강증진</option>
+                <option value="생활">생활지원</option>
+            </select>
+        </div>
+
         <button class="btn" onclick="goScale()">다음 (척도 검사)</button>
     </div>
 
     <div id="step-scale" class="card hidden">
         <h2 id="scale-title">척도 검사</h2>
-        <p style="text-align:center; color:#4A90E2; font-weight:bold;">솔직하게 체크해 주세요.</p>
         <div id="questions-area"></div>
-        <button class="btn" onclick="submitNext()">다음 / 제출</button>
+        <button class="btn" onclick="submitNext()">다음 페이지</button>
     </div>
 
     <div id="step-end" class="card hidden" style="text-align:center; padding:50px 20px;">
@@ -136,36 +232,59 @@
     <div id="admin-dash" class="card hidden no-print">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2>📋 참여자 목록</h2>
-            <button onclick="location.reload()" style="padding:10px; background:#ddd; border:none; border-radius:5px; cursor:pointer;">로그아웃</button>
+            <button onclick="location.reload()" style="padding:10px; background:#ddd; border:none; border-radius:5px; cursor:pointer;">나가기</button>
         </div>
         <ul id="user-list" style="list-style:none; padding:0;"></ul>
     </div>
 
     <div id="report-area" class="hidden">
-        <div style="border:2px solid #000; padding:15px; text-align:center; margin-bottom:20px;">
-            <h1 style="margin:0;">학교 밖 청소년 통합 진단 결과보고서</h1>
-            <p style="margin:5px 0;">성명: <span id="r-name"></span> | 생년월일: <span id="r-birth"></span> | 검사일: <span id="r-date"></span></p>
+        <div style="border:2px solid #000; padding:10px; text-align:center; margin-bottom:15px;">
+            <h1 style="margin:0; font-size:18pt;">학교 밖 청소년 통합 진단 결과보고서</h1>
+            <p style="margin:5px 0;">이름: <span id="r-name"></span> | 생년월일: <span id="r-birth"></span> | 검사일: <span id="r-date"></span></p>
         </div>
+        
         <div class="section-header">Ⅰ. 희망 서비스 및 기초 조사</div>
         <table>
-            <tr><th width="20%">학업중단 사유</th><td id="r-reason"></td><th width="20%">주요 호소 문제</th><td id="r-diff"></td></tr>
-            <tr><th>1순위 희망서비스</th><td colspan="3" id="r-want"></td></tr>
+            <tr>
+                <th width="15%">학업중단 시기</th><td id="r-period"></td>
+                <th width="15%">학업중단 사유</th><td id="r-reason"></td>
+            </tr>
+            <tr>
+                <th>거주 형태</th><td id="r-living"></td>
+                <th>경제 수준</th><td id="r-econ"></td>
+            </tr>
+            <tr>
+                <th>향후 진로계획</th><td id="r-plan"></td>
+                <th>주요 호소문제</th><td id="r-diff"></td>
+            </tr>
+            <tr>
+                <th>희망 서비스</th>
+                <td colspan="3">
+                    <b>(1순위)</b> <span id="r-want1"></span> &nbsp;/&nbsp; 
+                    <b>(2순위)</b> <span id="r-want2"></span>
+                </td>
+            </tr>
         </table>
+        
         <div class="section-header">Ⅱ. 자립역량 척도 결과 (점수가 낮을수록 위험)</div>
         <table>
             <thead><tr><th>영역</th><th>나의 점수</th><th>기준(절단) 점수</th><th>판정</th></tr></thead>
             <tbody id="r-jarip-body"></tbody>
         </table>
+        
         <div class="section-header">Ⅲ. 심리정서·환경 척도 결과 (점수가 높을수록 위험)</div>
         <table>
             <thead><tr><th>영역</th><th>나의 점수</th><th>기준(절단) 점수</th><th>판정</th></tr></thead>
             <tbody id="r-simni-body"></tbody>
         </table>
+        
         <div class="section-header" style="color:#E74C3C; border-color:#E74C3C;">🚨 위기(Red Flag) 및 추가 탐색 가이드</div>
-        <div id="r-guide" style="border:1px solid #E74C3C; padding:15px; font-size:10pt;"></div>
+        <div id="r-guide" style="border:1px solid #E74C3C; padding:10px; font-size:10pt;"></div>
+        
         <div class="page-break"></div>
         <div class="section-header">[별첨] 문항별 응답 상세 데이터</div>
         <div id="r-raw-data" style="font-size:9pt; column-count: 2; line-height:1.4;"></div>
+        
         <div class="no-print" style="margin-top:30px; text-align:center;">
             <button class="btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
             <button class="btn secondary" onclick="closeReport()">목록으로</button>
@@ -174,7 +293,7 @@
 </div>
 
 <script>
-    // [1] Firebase 설정 (kdream)
+    // [1] Firebase Config (사용자 제공)
     const firebaseConfig = {
         apiKey: "AIzaSyDgPm4Ig5OLJF5zZrcMTXoIVT3dRlf37Eg",
         authDomain: "kdream-db462.firebaseapp.com",
@@ -184,18 +303,13 @@
         appId: "1:1020262030810:web:3482636bc020bb4310b4e3"
     };
 
-    // Firebase 초기화
     let db;
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        console.log("Firebase Connected");
-    } catch(e) {
-        console.error("Firebase Error:", e);
-        alert("데이터베이스 연결 실패. 인터넷 연결 상태를 확인해주세요.");
-    }
+    } catch(e) { console.error(e); alert("DB 연결 실패"); }
 
-    // [2] 전체 문항 데이터 (126문항)
+    // [2] 문항 데이터
     const DB_QUESTIONS = {
         YOUTH: {
             jarip: [
@@ -339,9 +453,18 @@
 
     let user = {};
     let answers = {};
-    let currentPart = "jarip"; 
+    let currentPart = "jarip";
+    
+    // 진행률 계산 변수
+    let totalSteps = 0; 
+    let currentStep = 0;
 
-    // [3] 로직 함수
+    // [3] 로직
+    function updateProgress(percent) {
+        document.getElementById('progress-bar').style.width = percent + "%";
+        document.getElementById('progress-text').innerText = Math.round(percent) + "%";
+    }
+
     function startProcess() {
         const name = document.getElementById('userName').value;
         const birth = document.getElementById('userBirth').value;
@@ -356,19 +479,34 @@
         user = { name, birth, age, type, date: new Date().toLocaleDateString() };
         
         document.getElementById('step-login').classList.add('hidden');
+        document.getElementById('progress-container').classList.remove('hidden');
         document.getElementById('step-survey').classList.remove('hidden');
+        updateProgress(10); // 기초 조사 시작
     }
 
     function goScale() {
+        // 희망 서비스 데이터 수집
+        user.dropPeriod = document.getElementById('dropPeriod').value;
         user.dropReason = document.getElementById('dropReason').value;
+        user.livingType = document.getElementById('livingType').value;
+        user.econ = document.querySelector('input[name="econ"]:checked')?.value || "";
+        user.futurePlan = document.getElementById('futurePlan').value;
         user.want1 = document.getElementById('want1').value;
+        user.want2 = document.getElementById('want2').value;
         
         const diffs = [];
         document.querySelectorAll('.difficulty:checked').forEach(el => diffs.push(el.value));
         user.difficulties = diffs.join(", ");
 
+        if(!user.dropReason || !user.want1) return alert("필수 항목(사유, 1순위 서비스 등)을 선택해주세요.");
+
         document.getElementById('step-survey').classList.add('hidden');
         document.getElementById('step-scale').classList.remove('hidden');
+        
+        // 전체 문항 수 계산 (진행률용)
+        totalSteps = DB_QUESTIONS[user.type].jarip.length + DB_QUESTIONS[user.type].simni.length;
+        currentStep = 0;
+        
         renderQuestions("jarip");
     }
 
@@ -388,22 +526,39 @@
             div.innerHTML = `
                 <div class="q-text">${idx+1}. ${q.t}</div>
                 <div class="options">
-                    <label><input type="radio" name="${part}_${q.n}" value="1" onchange="saveAns('${part}', ${q.n}, 1, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">전혀<br>아님</label>
-                    <label><input type="radio" name="${part}_${q.n}" value="2" onchange="saveAns('${part}', ${q.n}, 2, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">아니다</label>
-                    <label><input type="radio" name="${part}_${q.n}" value="3" onchange="saveAns('${part}', ${q.n}, 3, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">보통</label>
-                    <label><input type="radio" name="${part}_${q.n}" value="4" onchange="saveAns('${part}', ${q.n}, 4, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">그렇다</label>
-                    <label><input type="radio" name="${part}_${q.n}" value="5" onchange="saveAns('${part}', ${q.n}, 5, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">매우<br>그렇다</label>
+                    <label><input type="radio" name="${part}_${q.n}" value="1" onchange="handleAnswer('${part}', ${q.n}, 1, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">전혀<br>아님</label>
+                    <label><input type="radio" name="${part}_${q.n}" value="2" onchange="handleAnswer('${part}', ${q.n}, 2, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">아니다</label>
+                    <label><input type="radio" name="${part}_${q.n}" value="3" onchange="handleAnswer('${part}', ${q.n}, 3, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">보통</label>
+                    <label><input type="radio" name="${part}_${q.n}" value="4" onchange="handleAnswer('${part}', ${q.n}, 4, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">그렇다</label>
+                    <label><input type="radio" name="${part}_${q.n}" value="5" onchange="handleAnswer('${part}', ${q.n}, 5, ${q.rev}, ${q.crit}, '${q.d}', '${q.t}')">매우<br>그렇다</label>
                 </div>
             `;
             area.appendChild(div);
         });
     }
 
-    function saveAns(part, no, val, rev, crit, domain, text) {
+    function handleAnswer(part, no, val, rev, crit, domain, text) {
+        // 답변 저장
         answers[`${part}_${no}`] = { val, rev, crit, domain, text };
+        
+        // 진행률 업데이트 logic
+        // 답변 개수 세기
+        const answeredCount = Object.keys(answers).length;
+        let percent = 20 + (answeredCount / totalSteps * 80); // 기초조사(20%) + 척도(80%)
+        if(percent > 100) percent = 100;
+        updateProgress(percent);
     }
 
     function submitNext() {
+        // 현재 파트 문항 다 체크했는지 확인 (간단 검증)
+        const currentList = DB_QUESTIONS[user.type][currentPart];
+        for(let q of currentList) {
+            if(!answers[`${currentPart}_${q.n}`]) {
+                alert("체크하지 않은 문항이 있습니다. 확인해주세요.");
+                return;
+            }
+        }
+
         if(currentPart === "jarip") {
             renderQuestions("simni");
         } else {
@@ -420,18 +575,21 @@
 
         db.collection("intake_data").add(payload)
         .then(() => {
+            updateProgress(100);
             document.getElementById('step-scale').classList.add('hidden');
+            document.getElementById('progress-container').classList.add('hidden');
             document.getElementById('step-end').classList.remove('hidden');
         })
         .catch((error) => {
             console.error(error);
-            alert("저장 중 오류가 발생했습니다: " + error.message);
+            alert("저장 오류: " + error.message);
         });
     }
 
     // [4] 관리자 기능
     function showAdmin() {
         document.getElementById('youth-view').classList.add('hidden');
+        document.getElementById('progress-container').classList.add('hidden');
         document.getElementById('admin-view').classList.remove('hidden');
     }
 
@@ -447,7 +605,7 @@
 
     function loadData() {
         const list = document.getElementById('user-list');
-        list.innerHTML = "<p>데이터 불러오는 중...</p>";
+        list.innerHTML = "<p>데이터 로딩 중...</p>";
         
         db.collection("intake_data").orderBy("timestamp", "desc").limit(20).get()
         .then((querySnapshot) => {
@@ -455,13 +613,14 @@
             querySnapshot.forEach((doc) => {
                 const d = doc.data();
                 const li = document.createElement('li');
+                li.style.marginBottom = "10px";
                 li.innerHTML = `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;">
+                    <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin:0;">
                         <div>
                             <strong>${d.info.name}</strong> (${d.info.age}세)<br>
                             <small>${d.info.date}</small>
                         </div>
-                        <button class="btn" style="width:auto; margin:0; padding:10px 20px;" onclick='showReport(${JSON.stringify(d)})'>결과보기</button>
+                        <button class="btn" style="width:auto; margin:0; padding:10px 20px; font-size:1em;" onclick='showReport(${JSON.stringify(d)})'>결과보기</button>
                     </div>
                 `;
                 list.appendChild(li);
@@ -473,17 +632,24 @@
         document.getElementById('admin-dash').classList.add('hidden');
         document.getElementById('report-area').classList.remove('hidden');
 
+        // 기초 정보 매핑
         document.getElementById('r-name').innerText = data.info.name;
         document.getElementById('r-birth').innerText = data.info.birth;
         document.getElementById('r-date').innerText = data.info.date;
-        document.getElementById('r-reason').innerText = data.info.dropReason;
-        document.getElementById('r-diff').innerText = data.info.difficulties;
-        document.getElementById('r-want').innerText = data.info.want1;
+        document.getElementById('r-period').innerText = data.info.dropPeriod || "-";
+        document.getElementById('r-reason').innerText = data.info.dropReason || "-";
+        document.getElementById('r-living').innerText = data.info.livingType || "-";
+        document.getElementById('r-econ').innerText = data.info.econ || "-";
+        document.getElementById('r-plan').innerText = data.info.futurePlan || "-";
+        document.getElementById('r-diff').innerText = data.info.difficulties || "-";
+        document.getElementById('r-want1').innerText = data.info.want1 || "-";
+        document.getElementById('r-want2').innerText = data.info.want2 || "-";
 
         let jScores = {}, sScores = {};
         let redFlags = [];
         let rawHtml = "";
 
+        // 점수 계산
         Object.keys(data.ans).sort().forEach(key => {
             const item = data.ans[key];
             const isJarip = key.startsWith("jarip");
@@ -504,10 +670,10 @@
                     redFlags.push(`[${item.domain}] ${item.text} (응답: ${item.val}점)`);
                 }
             }
-            rawHtml += `<span style="display:inline-block; width:48%;">${item.text.substring(0,15)}... : <b>${item.val}</b></span>`;
+            rawHtml += `<span style="display:inline-block; width:48%;">${item.text.substring(0,18)}... : <b>${item.val}</b></span>`;
         });
 
-        // 렌더링 로직 (컷오프 적용)
+        // 렌더링 (자립)
         const J_CUT = (data.info.type === "YOUTH") ? { '자존감':19, '성실성':15, '학업효능감':13, '사회적유능감':18, '진로정보탐색':13 } : { '자존감':14, '성실성':7, '학업효능감':6, '사회적유능감':8 };
         let jHtml = "";
         for(let k in jScores) {
@@ -517,14 +683,15 @@
         }
         document.getElementById('r-jarip-body').innerHTML = jHtml || "<tr><td colspan='4'>데이터 없음</td></tr>";
 
+        // 렌더링 (심리)
         const S_CUT = (data.info.type === "YOUTH") ? { '우울·불안':42, '과잉행동':29, '반항·품행':14, '중독':8, '자살':9, '가정환경':13, '또래환경':10 } : { '우울·불안':27, '과잉행동':22, '반항·품행':9, '중독':6, '부모자녀':7, '또래관계':7 };
         let sHtml = "";
         for(let k in sScores) {
-            let cut = S_CUT[k] || 99; // 컷오프 없는 항목은 제외되도록
-            if(cut === 99 && (k==='망상' || k==='자해')) cut = 0; // 망상/자해는 1점이라도 있으면 위험으로 볼 수도 있음 (개별 문항 중요)
+            let cut = S_CUT[k] || 99;
+            if(cut === 99 && (k==='망상' || k==='자해')) cut = 0; 
             
             let res = sScores[k] >= cut ? "<b style='color:red'>위험(High)</b>" : "양호";
-            if(cut === 99) res = "-"; // 기준 없는 항목
+            if(cut === 99) res = "-";
             sHtml += `<tr><td>${k}</td><td>${sScores[k]}</td><td>${cut===99?'-':cut+'점 이상'}</td><td>${res}</td></tr>`;
         }
         document.getElementById('r-simni-body').innerHTML = sHtml || "<tr><td colspan='4'>데이터 없음</td></tr>";
@@ -532,7 +699,7 @@
         let gHtml = "<ul style='margin:0; padding-left:20px;'>";
         if(redFlags.length > 0) {
             redFlags.forEach(msg => gHtml += `<li class='danger-text'>${msg}</li>`);
-            gHtml += "<br>👉 <b>조치사항:</b> 위기 문항 발견. 매뉴얼 탐색 질문 실시 및 필요 시 전문기관 연계.";
+            gHtml += "<br>👉 <b>조치사항:</b> 위기 문항 발견. 상담 시 구체적 탐색 및 안전 계획 수립 요망.";
         } else {
             gHtml += "<li>특이 위기 징후(Red Flag) 없음.</li>";
         }
