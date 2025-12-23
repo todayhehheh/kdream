@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>꿈드림 통합 인테이크 시스템</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* [디자인: 태블릿 가독성 최적화 + 인쇄 양식] */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #1C1C1E; --danger: #FF3B30; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* 입력 요소 스타일 */
+        h1, h2 { text-align: center; color: #333; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 1.1em; }
+        input[type="text"], input[type="date"], input[type="number"], select {
+            width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 12px; font-size: 1.1em; box-sizing: border-box; margin-bottom: 20px;
+        }
+
+        /* 라디오 버튼 (카드형 터치) */
+        .radio-group { display: flex; gap: 10px; justify-content: space-between; margin-bottom: 30px; }
+        .radio-group label {
+            flex: 1; background: #fff; border: 2px solid #eee; border-radius: 12px; padding: 20px 5px;
+            text-align: center; cursor: pointer; transition: 0.2s; font-weight: normal; display: flex; flex-direction: column; justify-content: center;
+        }
+        .radio-group input { display: none; }
+        .radio-group label:has(input:checked) { border-color: var(--primary); background: #E5F1FF; color: var(--primary); font-weight: bold; }
+
+        /* 체크박스 그룹 */
+        .checkbox-group label { display: inline-block; background: #fff; border: 1px solid #ddd; padding: 10px 15px; border-radius: 20px; margin: 5px; cursor: pointer; font-weight: normal; }
+        .checkbox-group input { display: none; }
+        .checkbox-group label:has(input:checked) { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .btn { width: 100%; padding: 20px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn.admin { background: #333; margin-top: 50px; font-size: 0.9em; padding: 10px; }
+
+        /* 화면 제어 */
+        .hidden { display: none !important; }
+        
+        /* [인쇄 전용 스타일 - 매뉴얼 양식 준수] */
+        @media print {
+            body { background: white; padding: 0; font-size: 12px; }
+            .no-print, .btn, .input-group, #youth-view { display: none !important; }
+            #admin-view, #report-area { display: block !important; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; border-radius: 0; }
+            
+            /* 결과표 스타일 (매뉴얼 표 양식) */
+            .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+            .report-table th, .report-table td { border: 1px solid #000; padding: 6px; text-align: center; }
+            .report-table th { background: #f0f0f0; font-weight: bold; }
+            .report-header { text-align: center; border: 2px solid #000; padding: 10px; margin-bottom: 20px; }
+            .section-title { font-size: 14px; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+            .page-break { page-break-before: always; }
+            .danger-text { color: red !important; font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="youth-view" class="container">
+    <div id="step-login" class="card">
+        <h1>🌱 꿈드림 인테이크</h1>
+        <p>환영합니다. 본 설문은 여러분에게 꼭 맞는 지원을 하기 위한 기초 자료입니다.</p>
+        <label>이름 <input type="text" id="userName"></label>
+        <label>생년월일 <input type="date" id="userBirth"></label>
+        <button class="btn" onclick="startSurvey()">시작하기</button>
+        <button class="btn admin" onclick="showAdminLogin()">관리자 모드</button>
+    </div>
+
+    <div id="step-survey" class="card hidden">
+        <h2>1. 희망 서비스 및 기초 조사</h2>
+        
+        <label>🏫 학교를 그만둔(중단한) 주된 이유는? (가장 큰 이유 1개)</label>
+        <select id="dropReason">
+            <option value="심리">심리·정서적 어려움</option>
+            <option value="학업">공부(검정고시, 대입 등)를 나만의 방식으로 하고 싶어서</option>
+            <option value="관계">학교 친구/선생님과의 관계 어려움</option>
+            <option value="진로">특기/적성을 살리거나 진로를 찾기 위해</option>
+            <option value="기타">기타 (경제적 사정, 건강 등)</option>
+        </select>
+
+        <label>🎁 가장 받고 싶은 서비스는? (우선순위 1위)</label>
+        <select id="wants1">
+            <option value="상담">심리상담 (우울, 불안, 진로고민 등)</option>
+            <option value="학업">학업지원 (검정고시, 수능공부, 멘토링)</option>
+            <option value="자립">자립지원 (자격증, 인턴십, 기술훈련)</option>
+            <option value="활동">문화/동아리 활동 (캠프, 취미 등)</option>
+            <option value="생활">생활지원 (급식, 건강검진, 경제적 지원)</option>
+        </select>
+
+        <button class="btn" onclick="goScale()">다음 (척도 검사)</button>
+    </div>
+
+    <div id="step-scale" class="card hidden">
+        <h2 id="scale-title">척도 검사 진행 중</h2>
+        <p class="guide-text">솔직하게 체크해 주세요.</p>
+        <div id="question-area"></div>
+        <button class="btn" onclick="submitData()">제출하기</button>
+    </div>
+    
+    <div id="step-end" class="card hidden" style="text-align:center;">
+        <h1>✅ 완료되었습니다.</h1>
+        <p>수고하셨습니다. 태블릿을 선생님께 드려주세요.</p>
+        <button class="btn" onclick="location.reload()">처음으로</button>
+    </div>
+</div>
+
+<div id="admin-view" class="container hidden">
+    <div id="admin-login" class="card no-print">
+        <h2>🔒 관리자 접속</h2>
+        <input type="password" id="adminPw" placeholder="비밀번호">
+        <button class="btn" onclick="verifyAdmin()">확인</button>
+        <button class="btn" style="background:#999;" onclick="location.reload()">나가기</button>
+    </div>
+
+    <div id="admin-dashboard" class="card hidden no-print">
+        <h2>📋 참여 청소년 목록</h2>
+        <ul id="user-list" style="list-style:none; padding:0;"></ul>
+        <button class="btn" style="background:#666;" onclick="location.reload()">로그아웃</button>
+    </div>
+
+    <div id="report-area" class="hidden">
+        <div class="report-header">
+            <h2>학교 밖 청소년 통합 진단 결과지</h2>
+            <p>이름: <span id="r-name"></span> | 생년월일: <span id="r-birth"></span> | 검사일: <span id="r-date"></span></p>
+        </div>
+
+        <div class="section-title">Ⅰ. 기초 조사 및 희망 서비스 [cite: 16]</div>
+        <table class="report-table">
+            <tr><th>학업중단 사유</th><td id="r-reason"></td><th>1순위 희망서비스</th><td id="r-want"></td></tr>
+        </table>
+
+        <div class="section-title">Ⅱ. 자립역량 척도 결과 (점수가 낮을수록 위험) [cite: 17]</div>
+        <table class="report-table">
+            <thead><tr><th>영역</th><th>나의 점수</th><th>기준(절단) 점수</th><th>판정</th></tr></thead>
+            <tbody id="r-jarip-body"></tbody>
+        </table>
+
+        <div class="section-title">Ⅲ. 심리정서·환경 척도 결과 (점수가 높을수록 위험) [cite: 18]</div>
+        <table class="report-table">
+            <thead><tr><th>영역</th><th>나의 점수</th><th>기준(절단) 점수</th><th>판정</th></tr></thead>
+            <tbody id="r-simni-body"></tbody>
+        </table>
+
+        <div class="section-title" style="color:red;">🚨 긴급 확인 및 추가 탐색 가이드 </div>
+        <div id="r-guide" style="border:1px solid red; padding:10px; font-size:12px;"></div>
+
+        <div class="page-break"></div>
+        <h3>[별첨] 전체 문항 응답 데이터</h3>
+        <div id="r-raw-data" style="font-size:11px; column-count: 2;"></div>
+        
+        <button class="btn no-print" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+        <button class="btn no-print" style="background:#999;" onclick="closeReport()">닫기</button>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // 1. Firebase 설정 (YOUR_API_KEY를 본인 것으로 변경 필수)
+    // ============================================================
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+    
+    // 이 부분은 실제 API 키가 없으면 에러가 나므로, 
+    // 로컬 스토리지(브라우저 저장소) 모드로 동작하게 하는 Fallback 코드를 넣습니다.
+    let db;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    } catch(e) {
+        console.warn("Firebase 설정이 되지 않았습니다. 로컬 스토리지 모드로 동작합니다.");
+    }
+
+    // ============================================================
+    // 2. 데이터 및 로직
+    // ============================================================
+    
+    // [데이터베이스: 매뉴얼 문항 DB]
+    // 13-24세용 기준 (예시 단축, 실제 전체 구현시 DB_YOUTH 전체 복사)
+    const QUESTIONS = {
+        jarip: [
+            {no:1, t:"나는 가치있는 사람이다", d:"자존감"},
+            {no:7, t:"나는 맡겨진 일은 끝까지 하려고 노력한다", d:"성실성"},
+            {no:2, t:"나는 내가 무엇을 알고 모르는지 판단할 수 있다", d:"학업효능감"},
+            // ... (전체 문항 필요)
+        ],
+        simni: [
+            {no:1, t:"지난 1달간 슬프거나 우울할 때가 자주 있다", d:"우울·불안"},
+            {no:48, t:"지난 3개월간 자살을 생각해 본 적 있다", d:"자살", crit:true}, // Red Flag
+            {no:15, t:"내게는 속마음을 터놓을 친구가 있다", d:"또래환경", rev:true}, // 역채점 [cite: 1326]
+            // ... (전체 문항 필요)
+        ]
+    };
+
+    let currentUser = {};
+    let answers = {};
+
+    function startSurvey() {
+        const name = document.getElementById('userName').value;
+        const birth = document.getElementById('userBirth').value;
+        if(!name || !birth) return alert("이름과 생년월일을 입력해주세요.");
+        
+        currentUser = { name, birth, date: new Date().toLocaleDateString() };
+        
+        // 나이 계산
+        const age = new Date().getFullYear() - new Date(birth).getFullYear();
+        currentUser.age = age;
+        currentUser.type = (age >= 13) ? "youth" : "child";
+
+        document.getElementById('step-login').classList.add('hidden');
+        document.getElementById('step-survey').classList.remove('hidden');
+    }
+
+    function goScale() {
+        // 희망 서비스 저장
+        currentUser.dropReason = document.getElementById('dropReason').value;
+        currentUser.want1 = document.getElementById('wants1').value;
+
+        document.getElementById('step-survey').classList.add('hidden');
+        document.getElementById('step-scale').classList.remove('hidden');
+        renderQuestions();
+    }
+
+    function renderQuestions() {
+        const area = document.getElementById('question-area');
+        area.innerHTML = "";
+        
+        // 간단한 예시로 자립 + 심리 일부만 렌더링 (실제론 전체 루프)
+        // 실제 구현 시 QUESTIONS 배열을 모두 순회해야 함.
+        
+        // 예시 문항 생성
+        let qList = [...QUESTIONS.jarip, ...QUESTIONS.simni];
+        
+        qList.forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.className = "card";
+            div.innerHTML = `
+                <p><strong>Q${idx+1}.</strong> ${q.t}</p>
+                <div class="radio-group">
+                    <label><input type="radio" name="q_${q.d}_${q.no}" value="1" onchange="saveAns('${q.d}', ${q.no}, 1, ${q.rev||false}, ${q.crit||false}, '${q.t}')">전혀<br>아님</label>
+                    <label><input type="radio" name="q_${q.d}_${q.no}" value="2" onchange="saveAns('${q.d}', ${q.no}, 2, ${q.rev||false}, ${q.crit||false}, '${q.t}')">아니다</label>
+                    <label><input type="radio" name="q_${q.d}_${q.no}" value="3" onchange="saveAns('${q.d}', ${q.no}, 3, ${q.rev||false}, ${q.crit||false}, '${q.t}')">보통</label>
+                    <label><input type="radio" name="q_${q.d}_${q.no}" value="4" onchange="saveAns('${q.d}', ${q.no}, 4, ${q.rev||false}, ${q.crit||false}, '${q.t}')">그렇다</label>
+                    <label><input type="radio" name="q_${q.d}_${q.no}" value="5" onchange="saveAns('${q.d}', ${q.no}, 5, ${q.rev||false}, ${q.crit||false}, '${q.t}')">매우<br>그렇다</label>
+                </div>
+            `;
+            area.appendChild(div);
+        });
+    }
+
+    function saveAns(domain, no, val, rev, crit, text) {
+        answers[`${domain}_${no}`] = { val, rev, crit, text, domain };
+    }
+
+    async function submitData() {
+        if(!confirm("제출하시겠습니까?")) return;
+
+        const dataToSave = {
+            info: currentUser,
+            ans: answers,
+            timestamp: new Date().getTime()
+        };
+
+        if(db) {
+            await db.collection("intake_results").add(dataToSave);
+            alert("저장되었습니다.");
+        } else {
+            // 로컬 스토리지 사용 (Firebase 없을 때)
+            let localData = JSON.parse(localStorage.getItem("dream_intake") || "[]");
+            localData.push(dataToSave);
+            localStorage.setItem("dream_intake", JSON.stringify(localData));
+            alert("기기에 임시 저장되었습니다.");
+        }
+
+        document.getElementById('step-scale').classList.add('hidden');
+        document.getElementById('step-end').classList.remove('hidden');
+    }
+
+    // ============================================================
+    // 3. 관리자 기능 (인쇄 및 조회)
+    // ============================================================
+    function showAdminLogin() {
+        document.getElementById('youth-view').classList.add('hidden');
+        document.getElementById('admin-view').classList.remove('hidden');
+    }
+
+    function verifyAdmin() {
+        if(document.getElementById('adminPw').value === "1388") {
+            document.getElementById('admin-login').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadList();
+        } else {
+            alert("비밀번호 오류");
+        }
+    }
+
+    async function loadList() {
+        const list = document.getElementById('user-list');
+        list.innerHTML = "";
+        
+        let data = [];
+        if(db) {
+            const snapshot = await db.collection("intake_results").orderBy("timestamp", "desc").get();
+            snapshot.forEach(doc => data.push(doc.data()));
+        } else {
+            data = JSON.parse(localStorage.getItem("dream_intake") || "[]");
+        }
+
+        data.forEach((d, idx) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${d.info.name}</strong> (${d.info.date})</div>
+                    <button class="btn" style="width:auto; margin:0; padding:10px;" onclick='viewReport(${JSON.stringify(d)})'>결과보기</button>
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    function viewReport(data) {
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('report-area').classList.remove('hidden');
+
+        // 1. 기본 정보 매핑
+        document.getElementById('r-name').innerText = data.info.name;
+        document.getElementById('r-birth').innerText = data.info.birth;
+        document.getElementById('r-date').innerText = data.info.date;
+        document.getElementById('r-reason').innerText = data.info.dropReason;
+        document.getElementById('r-want').innerText = data.info.want1;
+
+        // 2. 점수 계산 (매뉴얼 로직 적용)
+        let scores = {};
+        let redFlags = [];
+        let rawHtml = "";
+
+        for(let key in data.ans) {
+            const item = data.ans[key];
+            let score = item.val;
+            
+            // 역채점 로직 [cite: 1335]
+            if(item.rev) score = 6 - item.val;
+
+            // 점수 합산
+            if(!scores[item.domain]) scores[item.domain] = 0;
+            scores[item.domain] += score;
+
+            // Red Flag 감지 (자살, 자해 등) [cite: 1324]
+            if(item.crit && item.val >= 3) {
+                redFlags.push(`[${item.domain}] ${item.text} (응답: ${item.val})`);
+            }
+
+            rawHtml += `<span>Q.${item.domain}: ${item.val}점</span><br>`;
+        }
+
+        // 3. 자립역량 결과 렌더링
+        // 예시 기준점수 (매뉴얼 표 참조) [cite: 107]
+        const JARIP_CUTOFF = { '자존감': 19, '성실성': 15, '학업효능감': 13 }; 
+        let jaripHtml = "";
+        for(let d in JARIP_CUTOFF) {
+            let s = scores[d] || 0;
+            let risk = s <= JARIP_CUTOFF[d] ? "<span class='danger-text'>위험군 (낮음)</span>" : "일반군";
+            jaripHtml += `<tr><td>${d}</td><td>${s}</td><td>${JARIP_CUTOFF[d]}점 이하</td><td>${risk}</td></tr>`;
+        }
+        document.getElementById('r-jarip-body').innerHTML = jaripHtml;
+
+        // 4. 심리정서 결과 렌더링
+        // 예시 기준점수 (매뉴얼 표 참조) [cite: 181]
+        const SIMNI_CUTOFF = { '우울·불안': 42, '자살': 9 }; // 자살은 9점 이상이지만 개별 문항 중요
+        let simniHtml = "";
+        for(let d in SIMNI_CUTOFF) {
+            let s = scores[d] || 0;
+            let risk = s >= SIMNI_CUTOFF[d] ? "<span class='danger-text'>위험군 (높음)</span>" : "일반군";
+            simniHtml += `<tr><td>${d}</td><td>${s}</td><td>${SIMNI_CUTOFF[d]}점 이상</td><td>${risk}</td></tr>`;
+        }
+        document.getElementById('r-simni-body').innerHTML = simniHtml;
+
+        // 5. 가이드 출력
+        let guideHtml = "<ul>";
+        if(redFlags.length > 0) {
+            redFlags.forEach(msg => guideHtml += `<li class='danger-text'>${msg} -> 추가 탐색 필요</li>`);
+            guideHtml += "<li><strong>(가이드)</strong> 자살/자해 문항이 발견되었습니다. 매뉴얼 58p에 따라 구체적인 계획 여부를 물어보십시오. [cite: 680]</li>";
+        } else {
+            guideHtml += "<li>특이사항 없음.</li>";
+        }
+        guideHtml += "</ul>";
+        document.getElementById('r-guide').innerHTML = guideHtml;
+        document.getElementById('r-raw-data').innerHTML = rawHtml;
+    }
+
+    function closeReport() {
+        document.getElementById('report-area').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
