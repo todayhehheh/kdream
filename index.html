@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>노원구 꿈드림 초기상담</title>
+    <title>노원구 꿈드림 희망서비스 조사표</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -12,9 +12,13 @@
     
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #00BFA5; --bg: #F0F2F5; --card: #FFFFFF; --text: #333; --border: #E0E0E0; --focus: #00BFA5; }
+        :root { --primary: #00BFA5; --bg: #F0F2F5; --card: #FFFFFF; --text: #333; --border: #E0E0E0; }
         
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        
+        /* 숫자 입력 스피너 제거 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         /* 헤더 */
         .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: var(--primary); }
@@ -22,30 +26,28 @@
 
         .container { max-width: 680px; margin: 80px auto 0; padding: 20px; }
         
-        /* 질문 박스 (애니메이션 적용) */
+        /* 질문 박스 (애니메이션) */
         .q-box { 
             background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 20px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
             opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; display: none;
         }
         .q-box.show { display: block; opacity: 1; transform: translateY(0); }
-        .q-box.highlight { border: 2px solid var(--primary); }
 
-        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 10px; color: #222; font-weight: 800; }
-        p.desc { font-size: 0.95rem; color: #666; margin-bottom: 20px; line-height: 1.5; }
+        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 10px; color: #222; font-weight: 800; border-bottom: 2px solid var(--primary); padding-bottom:10px; display:inline-block;}
         label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem; color: #444; }
         .sub-text { font-size: 0.9rem; color: #888; font-weight: normal; margin-left: 5px; }
 
-        /* 입력 폼 */
-        input[type="text"], input[type="tel"], input[type="date"], input[type="number"], select {
+        /* 입력 폼 스타일링 */
+        input[type="text"], input[type="tel"], input[type="number"], select {
             width: 100%; padding: 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 1.1rem; 
             box-sizing: border-box; background: #fff; text-align: center; transition: 0.2s; -webkit-appearance: none;
         }
         input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
 
-        /* 분할 입력 (날짜, 연락처) */
+        /* 분할 입력 (생년월일, 주민번호 등) - 크기 동일하게 강제 */
         .split-box { display: flex; gap: 8px; align-items: center; }
-        .split-box input { flex: 1; }
+        .split-box input { flex: 1; min-width: 0; } /* min-width:0 추가로 flex 찌그러짐 방지 */
         
         /* 버튼형 선택지 */
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -54,7 +56,7 @@
             text-align: center; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
         }
         .btn-opt:hover { background: #f9f9f9; }
-        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; font-weight: 800; }
+        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; font-weight: 800; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
         /* 하단 진행바 */
         .progress-fixed { position: fixed; bottom: 0; left: 0; width: 100%; height: 6px; background: #eee; z-index: 1000; }
@@ -94,7 +96,6 @@
         <h1 style="color:var(--primary); font-size:2rem; margin-bottom:10px;">희망 서비스 조사표</h1>
         <p style="color:#666; margin:40px 0; line-height:1.8;">
             안녕하세요!<br>꿈드림 센터에 오신 것을 환영합니다.<br>
-            여러분을 더 잘 돕기 위한 질문들입니다.<br>
             <strong>편안하고 솔직하게</strong> 답변해 주세요.
         </p>
         <button class="full-btn" onclick="startSurvey()">시작하기</button>
@@ -107,7 +108,7 @@
         <h2>기본 인적사항</h2>
         <div class="form-group" style="margin-top:20px;">
             <label>성명</label>
-            <input type="text" id="userName" placeholder="이름을 입력하세요" onchange="next('q-gender')">
+            <input type="text" id="userName" placeholder="이름 입력" onchange="next('q-gender')">
         </div>
     </div>
 
@@ -120,11 +121,20 @@
     </div>
 
     <div id="q-birth" class="q-box">
-        <label>주민등록번호 <span class="sub-text">(생년월일 자동계산)</span></label>
+        <label>생년월일</label>
         <div class="split-box">
-            <input type="number" id="rrn1" placeholder="앞 6자리" oninput="checkLen(this,6,'rrn2')">
+            <input type="tel" id="birthY" placeholder="년(4자리)" maxlength="4" oninput="checkLen(this,4,'birthM')">
+            <input type="tel" id="birthM" placeholder="월" maxlength="2" oninput="checkLen(this,2,'birthD')">
+            <input type="tel" id="birthD" placeholder="일" maxlength="2" oninput="checkLen(this,2,'q-rrn')">
+        </div>
+    </div>
+
+    <div id="q-rrn" class="q-box">
+        <label>주민등록번호 <span class="sub-text">(13자리)</span></label>
+        <div class="split-box">
+            <input type="tel" id="rrn1" placeholder="앞 6자리" maxlength="6" oninput="checkLen(this,6,'rrn2')">
             <span>-</span>
-            <input type="password" id="rrn2" placeholder="뒤 7자리" oninput="checkLen(this,7,'address')">
+            <input type="tel" id="rrn2" placeholder="뒤 7자리" maxlength="7" oninput="checkLen(this,7,'q-addr')">
         </div>
     </div>
 
@@ -132,10 +142,10 @@
         <label>주소</label>
         <div class="split-box" style="margin-bottom:10px;">
             <input type="text" id="postcode" placeholder="우편번호" readonly>
-            <button class="btn-opt" style="flex:0.5; min-width:auto;" onclick="execPostcode()">검색</button>
+            <button class="btn-opt" style="flex:0.5; min-width:auto; padding:10px;" onclick="execPostcode()">검색</button>
         </div>
         <input type="text" id="address" placeholder="기본 주소" readonly style="margin-bottom:10px;">
-        <input type="text" id="detailAddr" placeholder="상세 주소를 입력하세요" onchange="next('q-contact')">
+        <input type="text" id="detailAddr" placeholder="상세 주소 입력" onchange="next('q-contact')">
     </div>
 
     <div id="q-contact" class="q-box">
@@ -185,9 +195,9 @@
     <div id="q-dropdate" class="q-box">
         <label>학교를 그만둔 날짜</label>
         <div class="split-box">
-            <input type="number" id="dropY" placeholder="20XX" oninput="checkLen(this,4,'dropM')"><span>년</span>
-            <input type="number" id="dropM" placeholder="월" oninput="checkLen(this,2,'dropD')"><span>월</span>
-            <input type="number" id="dropD" placeholder="일" oninput="checkLen(this,2,'q-reason1')"><span>일</span>
+            <input type="tel" id="dropY" placeholder="20XX" maxlength="4" oninput="checkLen(this,4,'dropM')"><span>년</span>
+            <input type="tel" id="dropM" placeholder="월" maxlength="2" oninput="checkLen(this,2,'dropD')"><span>월</span>
+            <input type="tel" id="dropD" placeholder="일" maxlength="2" oninput="checkLen(this,2,'q-reason1')"><span>일</span>
         </div>
     </div>
 
@@ -364,7 +374,7 @@
     </div>
 
 <script>
-    // [1] Firebase 설정
+    // [1] Firebase 설정 (본인 키로 변경)
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "kdream-db462.firebaseapp.com",
@@ -451,7 +461,6 @@
         const el = document.getElementById(nextId);
         if(el) {
             el.classList.add('show');
-            // 스크롤 부드럽게
             setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
         updateProgress();
@@ -462,15 +471,16 @@
             el.value = el.value.slice(0, max);
             if(nextId) {
                 const n = document.getElementById(nextId);
-                if(n) n.focus();
-                else next(nextId);
+                if(n) {
+                    if(n.tagName === 'DIV') next(nextId); // 박스면 보여주기
+                    else n.focus(); // 입력창이면 포커스 이동
+                }
             }
         }
     }
 
     function selectOpt(el, key, val) {
         userData[key] = val;
-        // 시각적 선택 처리
         const siblings = el.parentElement.children;
         for(let s of siblings) s.classList.remove('selected');
         el.classList.add('selected');
@@ -480,9 +490,8 @@
         selectOpt(el, id, val);
         
         if(id === 'reason1-list') {
-            // 2순위 생성 (1순위 제외)
             const d2 = document.getElementById('reason2-list');
-            d2.innerHTML = `<div class="btn-opt" onclick="next('q-reason3');">선택 안 함</div>`; // 건너뛰기 가능
+            d2.innerHTML = `<div class="btn-opt" onclick="next('q-reason3');">선택 안 함</div>`;
             REASON_OPTIONS.filter(r => r !== val).forEach(r => {
                 d2.innerHTML += `<div class="btn-opt" onclick="selectReason(this, 'reason2-list', '${r}'); next('q-reason3')">${r}</div>`;
             });
@@ -514,10 +523,7 @@
     }
 
     function startScale() {
-        // 데이터 수집
-        // ... (입력 필드 값들 userData에 저장하는 로직 필요 - 분량상 생략, 이전 코드 참조)
-        
-        // 나이 계산
+        // 데이터 수집 (생략: userData에 저장된 값 활용)
         const y2 = document.getElementById('rrn1').value.substr(0,2);
         const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
         userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
@@ -552,22 +558,25 @@
 
     function nextScale() {
         if(scaleStep === 0) {
-            // 저장 로직 (answers)
             scaleStep++;
             renderScale('simni');
             window.scrollTo(0,0);
         } else {
-            // 최종 제출
             document.getElementById('survey-screen').classList.add('hidden');
             document.getElementById('end-screen').classList.remove('hidden');
-            if(db) { /* Firestore 저장 코드 */ }
+            if(db) { 
+                /* Firestore 저장 코드 (userData + answers) */ 
+                db.collection("intake_complete").add({
+                    info: userData, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
         }
     }
 
     function updateProgress() {
-        const total = 20; // 대략적 단계 수
+        const total = 20; 
         const current = document.querySelectorAll('.q-box.show').length;
-        document.getElementById('progress').style.width = (current/total*100) + "%";
+        document.getElementById('progress-fill').style.width = (current/total*100) + "%";
     }
 </script>
 </body>
