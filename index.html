@@ -3,56 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>노원구 꿈드림 희망서비스 조사표</title>
+    <title>노원구 꿈드림 조사표</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="scales.js"></script>
+    
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #FF7F50; --bg: #FFF9F5; --white: #fff; --text: #333; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 60px 20px 100px 20px; }
+        :root { --primary: #00BFA5; --bg: #F0F2F5; --white: #fff; --text: #333; --gray: #888; }
         
-        .header { position: fixed; top: 0; left: 0; width: 100%; height: 50px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); z-index: 999; }
-        .progress-bar { position: fixed; top: 50px; left: 0; height: 5px; background: var(--primary); width: 0%; z-index: 999; transition: width 0.3s; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+        
+        /* 상단바 */
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 50px; background: white; z-index: 999; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .progress-bar { position: fixed; top: 50px; left: 0; height: 4px; background: var(--primary); width: 0%; z-index: 999; transition: width 0.3s; }
 
-        .container { max-width: 700px; margin: 0 auto; }
-        .page { display: none; animation: fadeIn 0.3s; }
+        .container { max-width: 720px; margin: 70px auto 0; padding: 20px; }
+        
+        /* 페이지 애니메이션 */
+        .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        h2 { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; color: #444; }
-        h3 { background: #eee; padding: 10px; border-radius: 8px; font-size: 1.1rem; margin: 20px 0 10px 0; }
+        /* 카드 스타일 */
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        
+        h2 { font-size: 1.3rem; color: #222; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 8px; display: inline-block; }
+        h3 { font-size: 1.1rem; color: #444; background: #f5f5f5; padding: 10px; border-radius: 8px; margin: 25px 0 10px 0; }
 
-        .form-group { margin-bottom: 25px; }
-        label { display: block; font-weight: 700; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        input.etc-input { margin-top: 5px; display: none; background: #fffbe6; border-color: #ffe58f; }
-        input.etc-input.show { display: block; }
-
+        /* 입력 폼 */
+        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; color: #333; }
+        .sub-label { font-weight: normal; font-size: 0.9rem; color: #888; }
+        
+        input[type="text"], input[type="tel"], input[type="date"], select {
+            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; text-align: center;
+        }
+        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
+        
         /* 버튼 그룹 */
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .btn-opt { flex: 1; min-width: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; }
-        .btn-opt.selected { background: #FFF0EB; border-color: var(--primary); color: var(--primary); font-weight: 800; }
+        .btn-opt { 
+            flex: 1; min-width: 100px; padding: 13px; border: 1px solid #ddd; border-radius: 10px; 
+            background: #fff; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 800; }
 
-        /* 가족 테이블 */
-        .fam-row { display: grid; grid-template-columns: 0.7fr 1fr 0.5fr 1.2fr 0.6fr; gap: 5px; margin-bottom: 5px; }
-        .fam-row input, .fam-row select { padding: 8px; text-align: center; font-size: 0.9rem; }
+        /* 척도 검사 전용 (5개 1줄 강제) */
+        .scale-row { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
+        .scale-q { font-weight: bold; margin-bottom: 10px; line-height: 1.4; word-break: keep-all; }
+        .scale-options { display: flex; gap: 4px; justify-content: space-between; }
+        .scale-btn {
+            flex: 1; padding: 12px 2px; border: 1px solid #ddd; border-radius: 8px; background: white; 
+            text-align: center; font-size: 0.8rem; cursor: pointer; color: #555; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .scale-btn span.num { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 2px; }
+        .scale-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 하단바 */
-        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; box-sizing: border-box; }
-        .btn { flex: 1; padding: 15px; border-radius: 10px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
-        .btn-prev { background: #eee; color: #555; flex: 0.4; }
+        /* 하단 네비게이션 */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; z-index: 1000; box-sizing: border-box; }
+        .btn { flex: 1; padding: 15px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+        .btn-prev { background: #f0f0f0; color: #555; flex: 0.4; }
         .btn-next { background: var(--primary); color: white; flex: 1; }
+
+        .hidden { display: none !important; }
+        .split { display: flex; gap: 5px; align-items: center; }
+        .split input { flex: 1; }
+        .fam-row { display: grid; grid-template-columns: 0.6fr 0.8fr 0.5fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
+        .fam-row input, .fam-row select { padding: 8px; font-size: 0.9rem; }
+
+        /* 인쇄 */
+        @media print {
+            .no-print, .header, .progress-bar, .bottom-bar { display: none !important; }
+            #report-area { display: block !important; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: none; padding: 0; }
+        }
     </style>
 </head>
 <body>
 
-<div class="header">노원구 꿈드림</div>
-<div class="progress-bar" id="progressBar"></div>
+<div class="header no-print">노원구 꿈드림</div>
+<div class="progress-bar no-print" id="progressBar"></div>
 
-<div class="container">
+<div id="intro-page" class="container text-center" style="margin-top:120px;">
+    <div class="card">
+        <h1 style="color:var(--primary); margin-bottom:10px;">희망 서비스 조사표</h1>
+        <p style="color:#666; line-height:1.6; margin-bottom:40px;">
+            안녕하세요.<br>꿈드림 센터에 오신 것을 환영합니다.<br>
+            여러분을 돕기 위한 자료이므로<br>
+            <strong>솔직하게</strong> 답변해 주시기 바랍니다.
+        </p>
+        <button class="btn btn-next" style="width:100%;" onclick="startSurvey()">작성 시작하기</button>
+        <p style="margin-top:20px; color:#ccc; font-size:0.9rem; cursor:pointer;" onclick="showAdmin()">관리자 접속</p>
+    </div>
+</div>
+
+<div id="survey-wrap" class="container hidden">
+
     <div id="page-1" class="page active">
         <div class="card">
             <h2>1. 기본 인적사항</h2>
@@ -63,26 +113,32 @@
                     <div class="btn-opt" onclick="sel(this,'gender','여')">여자</div>
                 </div>
             </div>
-            <div class="form-group"><label>주민번호 (13자리)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="tel" id="rrn1" maxlength="6" placeholder="앞자리"> - <input type="tel" id="rrn2" maxlength="7" placeholder="뒷자리">
+            <div class="form-group">
+                <label>주민등록번호 <span class="sub-label">(생년월일 자동)</span></label>
+                <div class="split">
+                    <input type="tel" id="rrn1" maxlength="6" placeholder="앞자리" oninput="autoBirth(this)"> - <input type="password" id="rrn2" maxlength="7" placeholder="뒷자리">
                 </div>
+                <div style="margin-top:5px; color:var(--primary); font-weight:bold; font-size:0.9rem;" id="birthDisplay"></div>
             </div>
             <div class="form-group"><label>주소</label>
-                <div style="display:flex; gap:10px; margin-bottom:5px;">
+                <div class="split" style="margin-bottom:5px;">
                     <input type="text" id="postcode" placeholder="우편번호" readonly style="flex:0.4;">
-                    <button type="button" style="padding:10px; flex:0.3; border-radius:10px; border:1px solid #ddd; background:#fff;" onclick="execPostcode()">검색</button>
+                    <button type="button" class="btn-opt" style="flex:0.3; padding:10px; min-width:auto;" onclick="execPostcode()">검색</button>
                 </div>
                 <input type="text" id="address" placeholder="기본 주소" readonly style="margin-bottom:5px;">
                 <input type="text" id="detailAddr" placeholder="상세 주소">
             </div>
-            <div class="form-group"><label>본인 연락처</label><input type="tel" id="telSelf" placeholder="010-0000-0000"></div>
-            <div class="form-group"><label>보호자 연락처</label><input type="tel" id="telParent" placeholder="010-0000-0000"></div>
-            <div class="form-group"><label>현재 상태</label>
+            <div class="form-group"><label>본인 연락처</label>
+                <div class="split"><input type="tel" id="t1" maxlength="3"><input type="tel" id="t2" maxlength="4"><input type="tel" id="t3" maxlength="4"></div>
+            </div>
+            <div class="form-group"><label>보호자 연락처</label>
+                <div class="split"><input type="tel" id="p1" maxlength="3"><input type="tel" id="p2" maxlength="4"><input type="tel" id="p3" maxlength="4"></div>
+            </div>
+            <div class="form-group"><label>청소년 상태</label>
                 <div class="btn-group" style="flex-direction:column;">
-                    <div class="btn-opt" onclick="sel(this,'status','학교밖청소년')">학교 밖 청소년</div>
+                    <div class="btn-opt" onclick="sel(this,'status','학교 밖 청소년')">학교 밖 청소년</div>
                     <div class="btn-opt" onclick="sel(this,'status','고졸검정고시합격')">고졸 검정고시 합격 청소년</div>
-                    <div class="btn-opt" onclick="sel(this,'status','학업중단숙려제')">학업중단 숙려제 (상담 중)</div>
+                    <div class="btn-opt" onclick="sel(this,'status','학업중단숙려제')">학업중단 숙려제(재학생)</div>
                 </div>
             </div>
         </div>
@@ -91,43 +147,40 @@
     <div id="page-2" class="page">
         <div class="card">
             <h2>2. 학업 중단 및 배경</h2>
-            <div class="form-group"><label>언제까지 학교에 다녔나요?</label>
+            <div class="form-group"><label>1. 언제까지 학교에 다녔습니까?</label>
                 <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'schLvl','초'); showGrade(6);">초등학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','중'); showGrade(3);">중학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','고'); showGrade(3);">고등학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','미진학'); showGrade(0);">미진학</div>
+                    <div class="btn-opt" onclick="sel(this,'schLvl','초'); showGr(6);">초등학교</div>
+                    <div class="btn-opt" onclick="sel(this,'schLvl','중'); showGr(3);">중학교</div>
+                    <div class="btn-opt" onclick="sel(this,'schLvl','고'); showGr(3);">고등학교</div>
+                    <div class="btn-opt" onclick="sel(this,'schLvl','미진학'); showGr(0);">미진학</div>
                 </div>
             </div>
-            <div class="form-group" id="grade-box" style="display:none;">
-                <label>학년</label>
-                <div class="btn-group" id="grade-opts" style="margin-bottom:10px;"></div>
-                <label>학기</label>
+            <div id="grade-wrap" class="form-group hidden" style="background:#f9f9f9; padding:15px; border-radius:10px;">
+                <label>학년 및 학기</label>
+                <div id="grade-opts" class="btn-group" style="margin-bottom:10px;"></div>
                 <div class="btn-group">
                     <div class="btn-opt" onclick="sel(this,'sem','1학기')">1학기</div>
                     <div class="btn-opt" onclick="sel(this,'sem','2학기')">2학기</div>
                 </div>
             </div>
-            <div class="form-group"><label>학교를 그만둔 날짜</label>
-                <div style="display:flex; gap:5px;">
-                    <input type="tel" id="dropY" placeholder="년(4자리)">
-                    <input type="tel" id="dropM" placeholder="월">
-                    <input type="tel" id="dropD" placeholder="일">
+            <div class="form-group"><label>2. 언제 학교를 그만두었습니까?</label>
+                <div class="split">
+                    <input type="tel" id="dY" placeholder="년(4자리)"><span>년</span>
+                    <input type="tel" id="dM" placeholder="월"><span>월</span>
+                    <input type="tel" id="dD" placeholder="일"><span>일</span>
                 </div>
             </div>
-            <div class="form-group"><label>그만둔 이유 (1순위)</label><select id="r1" onchange="chkEtc('r1','etc1')"></select><input type="text" id="etc1" class="etc-input" placeholder="기타 내용 입력"></div>
-            <div class="form-group"><label>그만둔 이유 (2순위)</label><select id="r2" onchange="chkEtc('r2','etc2')"></select><input type="text" id="etc2" class="etc-input" placeholder="기타 내용 입력"></div>
-            <div class="form-group"><label>그만둔 이유 (3순위)</label><select id="r3" onchange="chkEtc('r3','etc3')"></select><input type="text" id="etc3" class="etc-input" placeholder="기타 내용 입력"></div>
-            
-            <div class="form-group"><label>부모님 의견</label>
-                <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'agree','일치(찬성)')">찬성</div>
-                    <div class="btn-opt" onclick="sel(this,'agree','일치(반대)')">반대</div>
-                    <div class="btn-opt" onclick="sel(this,'agree','불일치')">불일치</div>
-                    <div class="btn-opt" onclick="sel(this,'agree','무관심')">무관심</div>
-                    <div class="btn-opt" onclick="sel(this,'agree','기타')">기타</div>
-                </div>
-                <input type="text" id="agreeEtc" class="etc-input" placeholder="기타 의견">
+            <div class="form-group"><label>3. 학교를 그만두게 된 이유는 무엇입니까? (1순위)</label>
+                <select id="reason1" onchange="updReason()"><option value="">선택 (필수)</option></select>
+            </div>
+            <div class="form-group"><label>2순위 (선택)</label><select id="reason2" onchange="updReason()"></select></div>
+            <div class="form-group"><label>3순위 (선택)</label><select id="reason3"></select></div>
+            <input type="text" id="reasonEtc" class="hidden" placeholder="기타 사유 입력" style="width:100%; margin-top:5px;">
+
+            <div class="form-group" style="margin-top:20px;">
+                <label>4. 학교를 그만두는 것에 대한 부모님(보호자)의 의견은 어떠했습니까?</label>
+                <div class="btn-group" id="agree-opts"></div>
+                <input type="text" id="agreeEtc" class="hidden" placeholder="기타 내용" style="width:100%; margin-top:5px;">
             </div>
         </div>
     </div>
@@ -135,41 +188,55 @@
     <div id="page-3" class="page">
         <div class="card">
             <h2>3. 방문 경로</h2>
+            <label>5. 꿈드림 센터를 방문하게 된 경로는 무엇입니까?</label>
             <div id="path-opts" class="btn-group" style="flex-direction:column;"></div>
-            <div id="org-box" style="display:none; margin-top:20px; border-top:1px dashed #ddd; padding-top:20px;">
-                <label>기관 상세 선택</label>
+            
+            <div id="org-wrap" class="hidden" style="margin-top:20px; border-top:1px dashed #ddd; padding-top:20px;">
+                <label>어떤 기관인가요?</label>
                 <div id="org-opts" class="btn-group"></div>
             </div>
-            <input type="text" id="pathEtc" class="etc-input" placeholder="기타 경로 입력">
         </div>
     </div>
 
     <div id="page-4" class="page">
         <div class="card">
             <h2>4. 가족 및 경제 상황</h2>
-            <div class="form-group"><label>가족 구성원</label>
-                <div class="fam-row" style="font-weight:bold; color:#666;">
-                    <span>관계</span><span>이름</span><span>나이</span><span>연락처</span><span>동거</span>
+            <div class="form-group">
+                <label>1. 나의 가정은 어떻게 구성되어 있습니까? (5줄)</label>
+                <div class="fam-row" style="font-weight:bold; color:#666; text-align:center;">
+                    <span>관계</span><span>성명</span><span>나이</span><span>연락처</span><span>동거</span>
                 </div>
-                <div id="fam-rows"></div>
+                <div id="fam-inputs"></div>
             </div>
             
-            <div class="form-group"><label>가정 형태</label><div id="fam-type-opts" class="btn-group"></div><input type="text" id="famEtc" class="etc-input"></div>
-            <div class="form-group"><label>경제 상태</label><div id="econ-opts" class="btn-group"></div></div>
+            <div class="form-group"><label>1-2. 현재 가족형태에 해당하는 것은 무엇입니까?</label><div id="fam-type-opts" class="btn-group"></div></div>
+            <div class="form-group"><label>1-3. 현재 가정의 경제상태에 해당하는 것은 무엇입니까?</label><div id="econ-opts" class="btn-group"></div></div>
             
-            <div class="form-group"><label>용돈 만족도</label>
+            <div class="form-group"><label>2. 가정에서 물질적 지원을 어느 정도 받고 있습니까?</label>
                 <div class="btn-group">
+                    <div class="btn-opt" onclick="sel(this,'money','매우충분')">매우 충분</div>
                     <div class="btn-opt" onclick="sel(this,'money','충분')">충분</div>
                     <div class="btn-opt" onclick="sel(this,'money','보통')">보통</div>
                     <div class="btn-opt" onclick="sel(this,'money','부족')">부족</div>
+                    <div class="btn-opt" onclick="sel(this,'money','매우부족')">매우 부족</div>
                 </div>
-                <div id="lack-box" style="display:none; margin-top:10px;">
-                    <label style="font-size:0.9rem;">부족 시 충당 방법</label>
+                <div id="lack-opts" class="hidden" style="margin-top:10px; background:#f9f9f9; padding:10px; border-radius:10px;">
+                    <label class="sub-label">2-1. 부족한 경우 어떻게 충당합니까?</label>
                     <div class="btn-group">
-                        <div class="btn-opt" onclick="sel(this,'howMoney','알바')">알바</div>
-                        <div class="btn-opt" onclick="sel(this,'howMoney','지원금')">지원금</div>
-                        <div class="btn-opt" onclick="sel(this,'howMoney','아껴씀')">아껴씀</div>
+                        <div class="btn-opt" onclick="sel(this,'how','알바')">일(알바)</div>
+                        <div class="btn-opt" onclick="sel(this,'how','지원금')">국가 지원금</div>
+                        <div class="btn-opt" onclick="sel(this,'how','아껴씀')">아껴씀</div>
                     </div>
+                </div>
+            </div>
+            
+            <div class="form-group"><label>2-2. 한 달 생활비용(용돈)은 얼마나 쓰고 있습니까?</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="sel(this,'pocket','없음')">없음</div>
+                    <div class="btn-opt" onclick="sel(this,'pocket','10미만')">10만원 미만</div>
+                    <div class="btn-opt" onclick="sel(this,'pocket','10~20')">10~20만원</div>
+                    <div class="btn-opt" onclick="sel(this,'pocket','21~30')">21~30만원</div>
+                    <div class="btn-opt" onclick="sel(this,'pocket','30이상')">30만원 이상</div>
                 </div>
             </div>
         </div>
@@ -177,41 +244,95 @@
 
     <div id="page-5" class="page">
         <div class="card">
-            <h2>5. 어려움 및 욕구</h2>
-            <label>중단 후 목표</label>
-            <div id="goal-opts" class="btn-group" style="margin-bottom:30px;"></div>
-            <input type="text" id="goalEtc" class="etc-input">
-
-            <label>희망 서비스 (전체 선택 가능)</label>
-            <div id="service-opts"></div>
+            <h2>5. 관계 및 어려움</h2>
+            <div class="form-group"><label>3. 가정에서는 얼마나 본인에게 관심을 가지고 존중합니까?</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="sel(this,'respect','매우충분')">매우 충분</div>
+                    <div class="btn-opt" onclick="sel(this,'respect','충분')">충분</div>
+                    <div class="btn-opt" onclick="sel(this,'respect','보통')">보통</div>
+                    <div class="btn-opt" onclick="sel(this,'respect','부족')">부족</div>
+                    <div class="btn-opt" onclick="sel(this,'respect','매우부족')">매우 부족</div>
+                </div>
+            </div>
+            <div class="form-group"><label>4. 문제나 고민이 있을 때 누구와 주로 얘기합니까?</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="sel(this,'talk','부모')">부모님</div>
+                    <div class="btn-opt" onclick="sel(this,'talk','선생님')">선생님</div>
+                    <div class="btn-opt" onclick="sel(this,'talk','형제자매')">형제/자매</div>
+                    <div class="btn-opt" onclick="sel(this,'talk','친척')">친척</div>
+                    <div class="btn-opt" onclick="sel(this,'talk','없음')">없음</div>
+                    <div class="btn-opt" onclick="sel(this,'talk','친구')">친구/선후배</div>
+                </div>
+            </div>
+            <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
+            <div class="form-group">
+                <label>1. 여러분이 현재 겪고 있는 어려움은 무엇입니까? (모두 선택)</label>
+                <div id="diff-opts"></div>
+            </div>
         </div>
     </div>
 
     <div id="page-6" class="page">
         <div class="card">
-            <h2>6. 자립역량 척도</h2>
+            <h2>6. 서비스 욕구</h2>
+            <div class="form-group"><label>학교 중단 후 목표</label>
+                <div id="goal-opts" class="btn-group"></div>
+            </div>
+            <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
+            <div class="form-group">
+                <label>희망하는 서비스 (모두 선택)</label>
+                <div id="service-opts"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-7" class="page">
+        <div class="card">
+            <h2>7. 자립역량 척도</h2>
+            <p style="color:#666; margin-bottom:20px; font-size:0.9rem;">※ 각 문항을 읽고 자신에게 해당되는 정도를 체크해주세요.</p>
             <div id="jarip-area"></div>
         </div>
+    </div>
+
+    <div id="page-8" class="page">
         <div class="card">
-            <h2>7. 심리정서 척도</h2>
+            <h2>8. 심리정서 척도</h2>
+            <p style="color:#666; margin-bottom:20px; font-size:0.9rem;">※ 솔직한 답변이 큰 도움이 됩니다.</p>
             <div id="simni-area"></div>
         </div>
     </div>
 
-    <div id="page-end" class="page text-center" style="text-align:center; padding-top:50px;">
-        <h1>수고하셨습니다!</h1>
-        <p>작성이 완료되었습니다.<br>태블릿을 상담사에게 전달해 주세요.</p>
-        <button class="btn btn-prev" style="margin-top:30px;" onclick="location.reload()">처음으로</button>
+    <div id="page-end" class="page text-center" style="margin-top:100px;">
+        <div style="font-size:4rem;">🎉</div>
+        <h1 style="color:var(--primary);">작성 완료!</h1>
+        <p style="font-size:1.2rem; margin:20px 0; color:#555;">수고하셨습니다.<br>상담 선생님께 태블릿을 전달해 주세요.</p>
+        <button class="btn btn-prev" onclick="location.reload()" style="margin-top:40px; width:auto; padding:15px 40px;">처음으로 돌아가기</button>
     </div>
+
 </div>
 
-<div class="bottom-bar">
+<div class="bottom-bar no-print" id="bottom-bar">
     <button class="btn btn-prev" onclick="move(-1)">이전</button>
     <button class="btn btn-next" onclick="move(1)" id="btn-next">다음</button>
 </div>
 
-<script>
-    // Firebase Config (본인 키 필수)
+<div id="admin-view" class="container hidden no-print">
+    <div class="card">
+        <h2>🔒 관리자 접속</h2>
+        <input type="password" id="adminPw" placeholder="비밀번호 1388">
+        <button class="btn btn-next" style="width:100%; margin-top:10px;" onclick="loginAdmin()">확인</button>
+        <button class="btn btn-prev" style="width:100%; margin-top:10px;" onclick="location.reload()">나가기</button>
+    </div>
+</div>
+<div id="admin-list" class="container hidden no-print">
+    <div class="card">
+        <h2>📋 참여자 목록</h2>
+        <ul id="list-area" style="list-style:none; padding:0;"></ul>
+        <button class="btn btn-prev" style="width:100%;" onclick="location.reload()">나가기</button>
+    </div>
+</div>
+<div id="report-area" class="hidden"></div> <script>
+    // [1] Firebase 설정 (본인 키로 변경)
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "kdream-db462.firebaseapp.com",
@@ -222,109 +343,212 @@
     };
     try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); } catch(e){}
 
-    let page = 1;
-    const maxPage = 6;
+    let curr = 0;
+    const max = 8;
     let data = {};
+    let answers = {};
+    let userType = "YOUTH";
 
     window.onload = () => {
-        // 중단사유
-        ['r1','r2','r3'].forEach(id => {
-            const el = document.getElementById(id);
-            el.add(new Option("선택", ""));
-            REASON_OPTIONS.forEach(r => el.add(new Option(r, r)));
-        });
-        
-        // 방문경로
-        const pBox = document.getElementById('path-opts');
-        VISIT_PATHS.forEach(p => {
-            let click = p.includes("기관") ? `document.getElementById('org-box').style.display='block'` : `document.getElementById('org-box').style.display='none'`;
-            if(p === "기타") click = `document.getElementById('pathEtc').classList.add('show')`;
-            pBox.innerHTML += `<div class="btn-opt" onclick="sel(this,'visit','${p}'); ${click}">${p}</div>`;
-        });
-        document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
-
-        // 가족
-        const fRows = document.getElementById('fam-rows');
-        for(let i=1; i<=5; i++) {
-            fRows.innerHTML += `<div class="fam-row"><input type="text" placeholder="관계"><input type="text" placeholder="이름"><input type="tel" placeholder="나이"><input type="tel" placeholder="연락처"><select><option>O</option><option>X</option></select></div>`;
-        }
-        
-        // 가정형태/경제
-        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPES.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.add('show')">${t}</div>`).join('');
-        document.getElementById('econ-opts').innerHTML = ECON_STATUS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
-
-        // 목표
-        document.getElementById('goal-opts').innerHTML = GOAL_OPTIONS.map(g => `<div class="btn-opt" onclick="sel(this,'goal','${g}'); if('${g}'=='기타') document.getElementById('goalEtc').classList.add('show')">${g}</div>`).join('');
-
-        // 서비스
-        const sBox = document.getElementById('service-opts');
-        for(let g in SERVICE_GROUPS) {
-            let html = `<h3>${g}</h3><div class="btn-group">`;
-            SERVICE_GROUPS[g].forEach(s => {
-                html += `<div class="btn-opt" onclick="this.classList.toggle('selected')">${s}</div>`;
-            });
-            sBox.innerHTML += html + `</div>`;
-        }
-        
-        // 척도 로드 (기본 YOUTH)
-        loadScale('YOUTH');
+        // 옵션 렌더링
+        initReasons();
+        initPath();
+        initFam();
+        initOpts();
     };
 
-    function loadScale(type) {
-        ['jarip','simni'].forEach(part => {
-            const div = document.getElementById(part+'-area');
-            div.innerHTML = "";
-            SCALE_DATA[type][part].forEach((q, i) => {
-                div.innerHTML += `
-                    <div style="margin-bottom:15px; background:#f9f9f9; padding:15px; border-radius:10px;">
-                        <div style="font-weight:bold; margin-bottom:10px;">${i+1}. ${q.t}</div>
-                        <div class="btn-group">
-                            <div class="btn-opt" onclick="sel(this,'${part}_${q.n}',1)">전혀아님</div>
-                            <div class="btn-opt" onclick="sel(this,'${part}_${q.n}',2)">아니다</div>
-                            <div class="btn-opt" onclick="sel(this,'${part}_${q.n}',3)">보통</div>
-                            <div class="btn-opt" onclick="sel(this,'${part}_${q.n}',4)">그렇다</div>
-                            <div class="btn-opt" onclick="sel(this,'${part}_${q.n}',5)">매우그렇다</div>
-                        </div>
-                    </div>`;
-            });
+    function initReasons() {
+        const r1 = document.getElementById('reason1');
+        const r2 = document.getElementById('reason2');
+        const r3 = document.getElementById('reason3');
+        
+        REASON_OPTIONS.forEach(r => {
+            r1.add(new Option(r, r));
+            r2.add(new Option(r, r));
+            r3.add(new Option(r, r));
         });
     }
 
+    function initPath() {
+        const d = document.getElementById('path-opts');
+        VISIT_PATHS.forEach(p => {
+            let click = p.includes("기관") ? `document.getElementById('org-wrap').classList.remove('hidden')` : `document.getElementById('org-wrap').classList.add('hidden')`;
+            d.innerHTML += `<div class="btn-opt" onclick="sel(this,'path','${p}'); ${click}">${p}</div>`;
+        });
+        document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
+    }
+
+    function initFam() {
+        const d = document.getElementById('fam-inputs');
+        for(let i=1; i<=5; i++) {
+            d.innerHTML += `<div class="fam-row"><input type="text" id="fr${i}"><input type="text" id="fn${i}"><input type="tel" id="fa${i}"><input type="tel" id="ft${i}"><select id="fl${i}"><option>O</option><option>X</option></select></div>`;
+        }
+        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}')">${t}</div>`).join('');
+        document.getElementById('econ-opts').innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
+        document.getElementById('agree-opts').innerHTML = PARENT_OPINION.map(o => `<div class="btn-opt" onclick="sel(this,'agree','${o}')">${o}</div>`).join('');
+    }
+
+    function initOpts() {
+        // 어려움
+        const diff = document.getElementById('diff-opts');
+        for(let k in DIFFICULTY_GROUPS) {
+            diff.innerHTML += `<h3>${k}</h3><div class="btn-group">` + 
+                DIFFICULTY_GROUPS[k].map(i => `<div class="btn-opt" onclick="toggle(this,'diff','${i}')">${i}</div>`).join('') + `</div>`;
+        }
+        // 목표
+        document.getElementById('goal-opts').innerHTML = GOAL_OPTIONS.map(g => `<div class="btn-opt" onclick="sel(this,'goal','${g}')">${g}</div>`).join('');
+        // 서비스
+        const serv = document.getElementById('service-opts');
+        for(let k in SERVICE_GROUPS) {
+            serv.innerHTML += `<h3>${k}</h3><div class="btn-group">` + 
+                SERVICE_GROUPS[k].map(i => `<div class="btn-opt" onclick="toggle(this,'serv','${i}')">${i}</div>`).join('') + `</div>`;
+        }
+    }
+
+    // 로직
     function sel(el, key, val) {
         data[key] = val;
-        // 형제들 선택해제
-        const sibs = el.parentElement.children;
-        for(let s of sibs) s.classList.remove('selected');
+        // 형제 선택 해제
+        Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
         
-        // 추가 로직 (용돈 부족)
-        if(key === 'money' && val === '부족') document.getElementById('lack-box').style.display='block';
+        // 추가 로직
+        if(key==='money' && (val.includes('부족'))) document.getElementById('lack-opts').classList.remove('hidden');
+        else if(key==='money') document.getElementById('lack-opts').classList.add('hidden');
     }
 
-    function chkEtc(id, etcId) {
-        const val = document.getElementById(id).value;
-        if(val.includes('기타')) document.getElementById(etcId).classList.add('show');
-        else document.getElementById(etcId).classList.remove('show');
+    function toggle(el, key, val) {
+        el.classList.toggle('selected');
+        if(!data[key]) data[key] = [];
+        if(el.classList.contains('selected')) data[key].push(val);
+        else data[key] = data[key].filter(v => v !== val);
     }
 
-    function showGrade(n) {
-        const box = document.getElementById('grade-box');
+    function updReason() {
+        const r1 = document.getElementById('reason1').value;
+        const r2 = document.getElementById('reason2');
+        const r3 = document.getElementById('reason3');
+        const etc = document.getElementById('reasonEtc');
+        
+        // 기타 처리
+        if(r1.includes("기타") || r2.value.includes("기타") || r3.value.includes("기타")) etc.classList.remove('hidden');
+        else etc.classList.add('hidden');
+        
+        // 중복 방지 (간단 UI 처리)
+        Array.from(r2.options).forEach(o => o.disabled = (o.value && o.value === r1));
+        Array.from(r3.options).forEach(o => o.disabled = (o.value && (o.value === r1 || o.value === r2.value)));
+    }
+
+    function showGr(n) {
+        const box = document.getElementById('grade-wrap');
         const opts = document.getElementById('grade-opts');
-        if(n===0) { box.style.display='none'; return; }
-        box.style.display='block';
+        if(n===0) { box.classList.add('hidden'); return; }
+        
+        box.classList.remove('hidden');
         opts.innerHTML = "";
         for(let i=1; i<=n; i++) opts.innerHTML += `<div class="btn-opt" onclick="sel(this,'grade','${i}학년')">${i}학년</div>`;
     }
 
+    // 척도 로드
+    function loadScale(part) {
+        const list = SCALE_DATA[userType][part];
+        const div = document.getElementById(part+'-area');
+        div.innerHTML = "";
+        list.forEach((q, i) => {
+            div.innerHTML += `
+                <div class="scale-row">
+                    <div class="scale-q">${i+1}. ${q.t}</div>
+                    <div class="scale-options">
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},1,this,${q.rev},${q.crit},'${q.d}')"><span class="num">1</span>전혀아님</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},2,this,${q.rev},${q.crit},'${q.d}')"><span class="num">2</span>아니다</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},3,this,${q.rev},${q.crit},'${q.d}')"><span class="num">3</span>보통</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},4,this,${q.rev},${q.crit},'${q.d}')"><span class="num">4</span>그렇다</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},5,this,${q.rev},${q.crit},'${q.d}')"><span class="num">5</span>매우그렇다</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function ans(part, n, v, el, r, c, d) {
+        answers[`${part}_${n}`] = {val:v, rev:r, crit:c, domain:d};
+        Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function startSurvey() {
+        document.getElementById('intro-page').classList.add('hidden');
+        document.getElementById('survey-wrap').classList.remove('hidden');
+        document.getElementById('bottom-bar').classList.remove('hidden');
+        move(1);
+    }
+
     function move(dir) {
-        document.getElementById(`page-${page}`).classList.remove('active');
-        page += dir;
-        if(page < 1) page = 1;
-        if(page > maxPage) { submit(); return; }
-        document.getElementById(`page-${page}`).classList.add('active');
-        document.getElementById('progressBar').style.width = (page/maxPage*100) + "%";
-        document.getElementById('btn-next').innerText = (page === maxPage) ? "제출하기" : "다음";
+        if(curr > 0) document.getElementById(`page-${curr}`).classList.remove('active');
+        curr += dir;
+        
+        if(curr < 1) curr = 1;
+        if(curr === 7) initScale('jarip');
+        if(curr === 8) initScale('simni');
+        if(curr > max) { submit(); return; }
+
+        document.getElementById(`page-${curr}`).classList.add('active');
+        document.getElementById('btn-next').innerText = (curr === max) ? "제출하기" : "다음";
+        document.getElementById('progressBar').style.width = (curr/max*100) + "%";
         window.scrollTo(0,0);
+    }
+
+    function initScale(part) {
+        // 나이 계산
+        const y2 = document.getElementById('rrn1').value.substr(0,2);
+        const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
+        userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
+        loadScale(part);
+    }
+
+    function submit() {
+        if(!confirm("제출하시겠습니까?")) { curr--; document.getElementById(`page-${curr}`).classList.add('active'); return; }
+        
+        // 데이터 수집 (입력창)
+        data.name = document.getElementById('userName').value;
+        data.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
+        data.addr = document.getElementById('address').value + " " + document.getElementById('detailAddr').value;
+        data.tel = document.getElementById('t1').value + "-" + document.getElementById('t2').value + "-" + document.getElementById('t3').value;
+        data.ptel = document.getElementById('p1').value + "-" + document.getElementById('p2').value + "-" + document.getElementById('p3').value;
+        data.dropDate = `${document.getElementById('dY').value}.${document.getElementById('dM').value}.${document.getElementById('dD').value}`;
+        
+        // 가족 수집
+        let fam = [];
+        for(let i=1; i<=5; i++) {
+            let nm = document.getElementById(`fn${i}`).value;
+            if(nm) fam.push(`${document.getElementById(`fr${i}`).value}/${nm}`);
+        }
+        data.family = fam.join(", ");
+
+        const payload = { info: data, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
+        
+        if(db) {
+            db.collection("intake_complete").add(payload).then(() => {
+                showEnd();
+            });
+        } else {
+            alert("DB 미연결 (테스트 완료)");
+            showEnd();
+        }
+    }
+
+    function showEnd() {
+        document.getElementById('survey-wrap').classList.add('hidden');
+        document.getElementById('bottom-bar').classList.add('hidden');
+        document.getElementById('page-end').classList.remove('hidden');
+    }
+
+    function autoBirth(el) {
+        if(el.value.length === 6) {
+            const y = parseInt(el.value.substr(0,2));
+            const fy = y < 30 ? 2000+y : 1900+y;
+            document.getElementById('birthDisplay').innerText = `${fy}년 ${el.value.substr(2,2)}월 ${el.value.substr(4,2)}일`;
+            document.getElementById('rrn2').focus();
+        }
     }
 
     function execPostcode() {
@@ -336,16 +560,46 @@
         }).open();
     }
 
-    function submit() {
-        if(confirm("제출하시겠습니까?")) {
-            // 저장 로직 (생략 - 이전 코드 참조)
-            document.querySelector('.container').style.display='none'; // 전체 숨김
-            document.querySelector('.bottom-bar').style.display='none';
-            document.getElementById('page-end').classList.add('active');
-            if(db) { /* Firestore Add */ }
-        } else {
-            move(-1); // 취소 시 이전 페이지로
-        }
+    function showAdmin() {
+        document.getElementById('intro-page').classList.add('hidden');
+        document.getElementById('admin-view').classList.remove('hidden');
+    }
+    
+    function loginAdmin() {
+        if(document.getElementById('adminPw').value === "1388") {
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('admin-list').classList.remove('hidden');
+            loadList();
+        } else alert("비밀번호 오류");
+    }
+
+    function loadList() {
+        const ul = document.getElementById('list-area');
+        ul.innerHTML = "로딩중...";
+        db.collection("intake_complete").orderBy("ts", "desc").limit(10).get().then(snap => {
+            ul.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                ul.innerHTML += `<li class="card" style="padding:15px; display:flex; justify-content:space-between;">
+                    <b>${d.info.name}</b> <button class="btn-opt" style="width:auto; min-width:60px;" onclick='viewRpt(${JSON.stringify(d)})'>보기</button>
+                </li>`;
+            });
+        });
+    }
+
+    function viewRpt(d) {
+        document.getElementById('admin-list').classList.add('hidden');
+        document.getElementById('report-area').classList.remove('hidden');
+        // 리포트 뷰 로직은 이전 코드 참조 (필요 시 복사)
+        document.getElementById('report-area').innerHTML = `
+            <div style="padding:20px; border:2px solid #333;">
+                <h2 style="text-align:center;">결과 요약</h2>
+                <p>성명: ${d.info.name}</p>
+                <p>연락처: ${d.info.tel}</p>
+                </div>
+            <button class="no-print btn-opt" style="margin-top:20px;" onclick="window.print()">인쇄</button>
+            <button class="no-print btn-opt" onclick="location.reload()">닫기</button>
+        `;
     }
 </script>
 </body>
