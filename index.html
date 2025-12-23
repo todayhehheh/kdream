@@ -68,6 +68,7 @@
 
         .hidden { display: none !important; }
         .full-width { width: 100%; }
+        .req { color: #FF4B4B; margin-left:3px; }
         
         /* 인쇄 스타일 */
         @media print {
@@ -171,7 +172,7 @@
             <div class="form-group">
                 <label>현재 청소년 상태</label>
                 <div class="btn-group" style="flex-direction:column;">
-                    <label><input type="radio" name="status" value="학교 밖 청소년">학교 밖 청소년 (자퇴, 미진학 등)</label>
+                    <label><input type="radio" name="status" value="학교 밖 청소년">학교 밖 청소년 (자퇴, 미진학, 제적)</label>
                     <label><input type="radio" name="status" value="고졸검정고시합격">고졸 검정고시 합격 청소년</label>
                     <label><input type="radio" name="status" value="학업중단숙려제">학업중단 숙려제 상담 참여</label>
                 </div>
@@ -216,16 +217,27 @@
             </div>
 
             <div class="form-group">
-                <label>그만둔 이유 (1순위)</label>
-                <div class="btn-group" id="reason1-area"></div> </div>
-            
-            <div class="form-group">
-                <label>그만둔 이유 (2순위 / 선택)</label>
-                <div class="btn-group" id="reason2-area"></div>
+                <label>그만둔 이유 (1순위 - 필수)</label>
+                <select id="reason1" onchange="updateReasonOptions()">
+                    <option value="">선택해주세요 (필수)</option>
+                </select>
             </div>
+            <div class="form-group">
+                <label>그만둔 이유 (2순위)</label>
+                <select id="reason2" onchange="updateReasonOptions()">
+                    <option value="">선택 (없으면 비워두세요)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>그만둔 이유 (3순위)</label>
+                <select id="reason3">
+                    <option value="">선택 (없으면 비워두세요)</option>
+                </select>
+            </div>
+            <input type="text" id="reasonEtc" class="hidden full-width" placeholder="기타 사유를 구체적으로 적어주세요" style="margin-top:5px;">
 
             <div class="form-group">
-                <label>그만둘 당시 부모님 의견</label>
+                <label>그만둘 당시 부모님(보호자) 의견</label>
                 <div class="btn-group">
                     <label><input type="radio" name="parentAgree" value="동의">동의하셨음</label>
                     <label><input type="radio" name="parentAgree" value="반대">반대하셨음</label>
@@ -276,7 +288,7 @@
                 <div class="btn-group">
                     <label><input type="radio" name="econ" value="상">여유 있음</label>
                     <label><input type="radio" name="econ" value="중">보통이다</label>
-                    <label><input type="radio" name="econ" value="하">어렵다</label>
+                    <label><input type="radio" name="econ" value="하">어려움</label>
                     <label><input type="radio" name="econ" value="기초수급">기초수급</label>
                     <label><input type="radio" name="econ" value="차상위">차상위</label>
                 </div>
@@ -295,7 +307,7 @@
             <div class="form-group">
                 <label>가정 내 관심 정도</label>
                 <div class="btn-group">
-                    <label><input type="radio" name="interest" value="많음">매우 많음</label>
+                    <label><input type="radio" name="interest" value="매우많음">매우 많음</label>
                     <label><input type="radio" name="interest" value="약간">약간 있음</label>
                     <label><input type="radio" name="interest" value="보통">보통</label>
                     <label><input type="radio" name="interest" value="별로없음">별로 없음</label>
@@ -307,7 +319,7 @@
                 <label>고민 의논 대상</label>
                 <div class="btn-group">
                     <label><input type="radio" name="talk" value="부모">부모님</label>
-                    <label><input type="radio" name="talk" value="형제">형제자매</label>
+                    <label><input type="radio" name="talk" value="형제자매">형제자매</label>
                     <label><input type="radio" name="talk" value="친구">친구</label>
                     <label><input type="radio" name="talk" value="선생님">선생님</label>
                     <label><input type="radio" name="talk" value="없음">없음</label>
@@ -372,7 +384,6 @@
                 <label><input type="checkbox" name="service" value="건강검진">건강검진</label>
                 <label><input type="checkbox" name="service" value="경제지원">급식/교통비</label>
                 <label><input type="checkbox" name="service" value="멘토링">멘토링</label>
-                <label><input type="checkbox" name="service" value="법률지원">법률지원</label>
             </div>
 
             <h3 style="background:none; padding:0; margin-top:40px;">과거 생활 및 건강</h3>
@@ -419,9 +430,9 @@
 </div>
 
 <div id="bottom-bar" class="bottom-bar hidden no-print">
-    <button class="btn btn-prev" onclick="move(-1)">이전</button>
+    <button class="btn btn-prev" onclick="movePage(-1)">이전</button>
     <button class="btn btn-save" onclick="saveDraft()">임시저장</button>
-    <button class="btn btn-next" onclick="move(1)" id="btn-next">다음</button>
+    <button class="btn btn-next" onclick="movePage(1)" id="btn-next">다음</button>
 </div>
 
 <div id="admin-view" class="container hidden no-print">
@@ -480,13 +491,13 @@
     <div style="display:flex; gap:10px;">
         <div style="flex:1;">
             <table>
-                <thead><tr><th>자립역량 (저위험)</th></tr></thead>
+                <thead><tr><th>자립역량 (점수↓ 위험)</th></tr></thead>
                 <tbody id="r-jarip"></tbody>
             </table>
         </div>
         <div style="flex:1;">
             <table>
-                <thead><tr><th>심리정서 (고위험)</th></tr></thead>
+                <thead><tr><th>심리정서 (점수↑ 위험)</th></tr></thead>
                 <tbody id="r-simni"></tbody>
             </table>
         </div>
@@ -499,7 +510,7 @@
 </div>
 
 <script>
-    // [1] Firebase 설정 (본인 키로 변경)
+    // [1] Firebase 설정 (본인 키로 변경 필수)
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "kdream-db462.firebaseapp.com",
@@ -515,16 +526,24 @@
         db = firebase.firestore();
     } catch(e) { console.log("Firebase Local Mode"); }
 
-    // [2] 상태 변수
+    // [2] 전역 변수
     let currentPage = 0;
     const totalPages = 7;
+    let formData = {};
     let answers = {};
-    let userData = {};
+    let scaleType = "YOUTH"; // YOUTH or CHILD
 
     window.onload = function() {
         createFamilyInputs();
         createReasonButtons();
         createPathButtons();
+        
+        // 뒤로가기 방지 (History API)
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            if(currentPage > 1) movePage(-1);
+            history.pushState(null, null, location.href);
+        };
     };
 
     // UI 생성 함수들
@@ -543,31 +562,37 @@
     }
 
     function createReasonButtons() {
-        const area1 = document.getElementById('reason1-area');
-        const area2 = document.getElementById('reason2-area');
-        
-        REASON_OPTIONS.forEach(r => {
-            // 1순위 (라디오)
-            area1.innerHTML += `<label><input type="radio" name="reason1" value="${r}" onclick="checkReasonDup()">${r}</label>`;
-            // 2순위 (라디오 - 선택)
-            area2.innerHTML += `<label><input type="radio" name="reason2" value="${r}" onclick="checkReasonDup()">${r}</label>`;
+        const selects = ['reason1', 'reason2', 'reason3'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            REASON_OPTIONS.forEach(opt => {
+                let op = document.createElement('option');
+                op.value = opt; op.text = opt;
+                el.appendChild(op);
+            });
         });
     }
 
     function createPathButtons() {
         const area = document.getElementById('path-area');
         VISIT_PATHS.forEach(p => {
-            area.innerHTML += `<label><input type="radio" name="path" value="${p}">${p}</label>`;
+            area.innerHTML += `<label><input type="radio" name="visitPath" value="${p}">${p}</label>`;
         });
     }
 
-    function checkReasonDup() {
-        const r1 = document.querySelector('input[name="reason1"]:checked')?.value;
-        const r2 = document.querySelector('input[name="reason2"]:checked')?.value;
+    function updateReasonOptions() {
+        const r1 = document.getElementById('reason1').value;
+        const r2 = document.getElementById('reason2').value;
+        const etc = document.getElementById('reasonEtc');
         
-        if(r1 && r2 && r1 === r2) {
-            alert("1순위와 2순위는 같을 수 없습니다.");
-            document.querySelector(`input[name="reason2"][value="${r2}"]`).checked = false;
+        // 기타 입력창
+        if(r1 === '기타' || r2 === '기타') etc.classList.remove('hidden');
+        else etc.classList.add('hidden');
+
+        // 중복 방지 로직 (간단 구현)
+        const opts2 = document.getElementById('reason2').options;
+        for(let i=0; i<opts2.length; i++) {
+            opts2[i].disabled = (opts2[i].value !== "" && opts2[i].value === r1);
         }
     }
 
@@ -611,24 +636,34 @@
         document.getElementById('step-intro').classList.add('hidden');
         document.getElementById('wizard-container').classList.remove('hidden');
         document.getElementById('bottom-bar').classList.remove('hidden');
-        move(1);
+        movePage(1);
     }
 
-    function move(dir) {
+    function movePage(dir) {
+        // Validation (1페이지 예시)
+        if(dir === 1 && currentPage === 1) {
+            if(!document.getElementById('userName').value) return alert("이름을 입력해주세요.");
+        }
+
         if(currentPage > 0) document.getElementById(`page-${currentPage}`).classList.add('hidden');
-        currentPage += dir;
         
+        currentPage += dir;
         if(currentPage < 1) currentPage = 1;
         
-        // 척도 페이지 로드
+        // 척도 페이지 로드 시점
         if(currentPage === 6) initScale('jarip');
         if(currentPage === 7) initScale('simni');
         if(currentPage > totalPages) { submitFinal(); return; }
 
         document.getElementById(`page-${currentPage}`).classList.remove('hidden');
-        document.getElementById('progressBar').style.width = (currentPage/totalPages*100) + "%";
-        document.getElementById('btn-next').innerText = (currentPage===totalPages) ? "제출하기" : "다음";
+        
+        // 버튼/진행바 업데이트
+        document.getElementById('progressBar').style.width = (currentPage / totalPages * 100) + "%";
+        document.getElementById('btn-next').innerText = (currentPage === totalPages) ? "제출하기" : "다음";
+        
         window.scrollTo(0,0);
+        // History State 추가 (뒤로가기 지원)
+        history.pushState({page: currentPage}, "Page " + currentPage, "");
     }
 
     function saveDraft() {
@@ -639,21 +674,22 @@
     // 데이터 수집
     function collectData() {
         // 기본
-        userData.name = document.getElementById('userName').value;
-        userData.gender = getRadio('gender');
-        userData.birth = `${document.getElementById('birthY').value}.${document.getElementById('birthM').value}.${document.getElementById('birthD').value}`;
-        userData.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
-        userData.addr = document.getElementById('address').value + " " + document.getElementById('detailAddress').value;
-        userData.telS = `${document.getElementById('telSelf1').value}-${document.getElementById('telSelf2').value}-${document.getElementById('telSelf3').value}`;
-        userData.telP = `${document.getElementById('telParent1').value}-${document.getElementById('telParent2').value}-${document.getElementById('telParent3').value}`;
-        userData.status = getRadio('status');
+        formData.name = document.getElementById('userName').value;
+        formData.gender = getRadio('gender');
+        formData.birth = `${document.getElementById('birthY').value}.${document.getElementById('birthM').value}.${document.getElementById('birthD').value}`;
+        formData.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
+        formData.addr = document.getElementById('address').value + " " + document.getElementById('detailAddress').value;
+        formData.telS = `${document.getElementById('telSelf1').value}-${document.getElementById('telSelf2').value}-${document.getElementById('telSelf3').value}`;
+        formData.telP = `${document.getElementById('telParent1').value}-${document.getElementById('telParent2').value}-${document.getElementById('telParent3').value}`;
+        formData.status = getRadio('status');
 
         // 학업
-        userData.dropWhen = getRadio('schLvl') + " " + (getRadio('grade')||'') + " " + (getRadio('semester')||'');
-        userData.dropDate = `${document.getElementById('dropY').value}.${document.getElementById('dropM').value}.${document.getElementById('dropD').value}`;
-        userData.dropReason = getRadio('reason1') + (getRadio('reason2') ? ", " + getRadio('reason2') : "");
-        userData.agree = getRadio('parentAgree');
-        userData.path = getRadio('path');
+        formData.dropWhen = getRadio('schLvl') + " " + (getRadio('grade')||'') + " " + (getRadio('semester')||'');
+        formData.dropDate = `${document.getElementById('dropY').value}.${document.getElementById('dropM').value}.${document.getElementById('dropD').value}`;
+        formData.dropReason = [document.getElementById('reason1').value, document.getElementById('reason2').value, document.getElementById('reason3').value].filter(Boolean).join(", ");
+        if(document.getElementById('reasonEtc').value) formData.dropReason += `(${document.getElementById('reasonEtc').value})`;
+        formData.agree = getRadio('parentAgree');
+        formData.path = getRadio('visitPath');
 
         // 가족
         let fam = [];
@@ -662,20 +698,23 @@
             let n=document.getElementById(`fn${i}`).value;
             if(r && n) fam.push(`${r}/${n}`);
         }
-        userData.family = fam.join(", ");
-        userData.famType = getRadio('famType');
-        userData.econ = getRadio('econ');
-        userData.money = getRadio('money');
-        userData.interest = getRadio('interest');
-        userData.talk = getRadio('talk');
+        formData.family = fam.join(", ");
+        formData.famType = getRadio('famType');
+        formData.econ = getRadio('econ');
+        formData.money = getRadio('money');
+        formData.interest = getRadio('interest');
+        formData.talk = getRadio('talk');
 
         // 욕구
-        userData.diff = getChecks('diff');
-        userData.goal = getRadio('goal');
-        userData.service = getChecks('service');
-        userData.school = getRadio('school');
-        userData.health = getRadio('health');
+        formData.diff = getChecks('diff');
+        formData.goal = getRadio('goal');
+        formData.service = getChecks('service');
+        formData.school = getRadio('school');
+        formData.health = getRadio('health');
     }
+
+    function getRadio(n) { const e=document.querySelector(`input[name="${n}"]:checked`); return e?e.value:""; }
+    function getChecks(n) { let a=[]; document.querySelectorAll(`input[name="${n}"]:checked`).forEach(e=>a.push(e.value)); return a.join(", "); }
 
     // 척도 로직
     function initScale(part) {
@@ -709,7 +748,7 @@
 
     function submitFinal() {
         collectData();
-        const payload = { info: userData, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
+        const payload = { info: formData, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
         
         if(db) {
             db.collection("intake_ok").add(payload).then(() => {
@@ -720,13 +759,10 @@
         } else {
             alert("DB 연결 안됨 (로컬완료)");
             document.getElementById('page-end').classList.remove('hidden');
+            document.getElementById('bottom-bar').classList.add('hidden');
             document.getElementById('page-7').classList.add('hidden');
         }
     }
-
-    // 헬퍼
-    function getRadio(n) { const e=document.querySelector(`input[name="${n}"]:checked`); return e?e.value:""; }
-    function getChecks(n) { let a=[]; document.querySelectorAll(`input[name="${n}"]:checked`).forEach(e=>a.push(e.value)); return a.join(", "); }
 
     // 관리자
     function showAdmin() { document.getElementById('step-intro').classList.add('hidden'); document.getElementById('admin-view').classList.remove('hidden'); }
@@ -745,7 +781,7 @@
             ul.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
-                ul.innerHTML += `<li class="card" style="padding:15px; display:flex; justify-content:space-between;"><b>${d.info.name}</b> <button onclick='viewRpt(${JSON.stringify(d)})'>보기</button></li>`;
+                ul.innerHTML += `<li class="card" style="padding:15px; display:flex; justify-content:space-between;"><b>${d.info.name}</b> <button class="btn btn-next" style="width:auto; padding:5px 15px;" onclick='viewRpt(${JSON.stringify(d)})'>보기</button></li>`;
             });
         });
     }
@@ -758,8 +794,8 @@
         document.getElementById('r-name').innerText = i.name;
         document.getElementById('r-birth').innerText = i.birth;
         document.getElementById('r-addr').innerText = i.addr;
-        document.getElementById('r-tel').innerText = i.telS;
-        document.getElementById('r-parent').innerText = i.telP;
+        document.getElementById('r-tel-s').innerText = i.telS;
+        document.getElementById('r-tel-p').innerText = i.telP;
         document.getElementById('r-status').innerText = i.status;
         
         document.getElementById('r-drop-when').innerText = i.dropWhen;
