@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>노원구 꿈드림 희망서비스 조사표</title>
+    <title>노원구 꿈드림 초기상담</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -12,365 +12,361 @@
     
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #00BFA5; --bg: #F0F2F5; --card: #FFFFFF; --text: #333; --border: #E0E0E0; }
+        :root { --primary: #00BFA5; --bg: #F3F4F6; --card: #FFFFFF; --text: #222; --border: #DDD; }
         
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; }
         
-        /* 숫자 입력 스피너 제거 */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        /* 헤더 */
-        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: var(--primary); }
-        .admin-btn { position: absolute; right: 20px; font-size: 0.8rem; color: #aaa; cursor: pointer; }
+        /* 상단바 */
+        .header { position: fixed; top: 0; width: 100%; height: 50px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; z-index: 1000; font-weight: 800; color: var(--primary); }
+        .progress { position: fixed; top: 50px; left: 0; height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; z-index: 1000; }
 
-        .container { max-width: 680px; margin: 80px auto 0; padding: 20px; }
+        .container { max-width: 720px; margin: 80px auto 0; padding: 20px; }
         
-        /* 질문 박스 (애니메이션) */
-        .q-box { 
-            background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
-            opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; display: none;
-        }
-        .q-box.show { display: block; opacity: 1; transform: translateY(0); }
+        /* 페이지 단위 컨테이너 */
+        .page-section { display: none; animation: fadeIn 0.3s; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 10px; color: #222; font-weight: 800; border-bottom: 2px solid var(--primary); padding-bottom:10px; display:inline-block;}
-        label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem; color: #444; }
-        .sub-text { font-size: 0.9rem; color: #888; font-weight: normal; margin-left: 5px; }
-
-        /* 입력 폼 스타일링 */
-        input[type="text"], input[type="tel"], input[type="number"], select {
-            width: 100%; padding: 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 1.1rem; 
-            box-sizing: border-box; background: #fff; text-align: center; transition: 0.2s; -webkit-appearance: none;
-        }
-        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
-
-        /* 분할 입력 (생년월일, 주민번호 등) - 크기 동일하게 강제 */
-        .split-box { display: flex; gap: 8px; align-items: center; }
-        .split-box input { flex: 1; min-width: 0; } /* min-width:0 추가로 flex 찌그러짐 방지 */
+        .card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         
-        /* 버튼형 선택지 */
+        h2 { font-size: 1.3rem; margin-top: 0; margin-bottom: 20px; color: #111; border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; }
+        h3 { font-size: 1.1rem; margin: 30px 0 10px 0; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+
+        /* 입력 폼 */
+        .form-group { margin-bottom: 25px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+        
+        input, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 1.05rem; box-sizing: border-box; background: #fff; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
+        
+        /* 버튼 그룹 (라디오/체크박스) */
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .btn-opt { 
-            flex: 1; min-width: 120px; padding: 16px; border: 1px solid #ddd; border-radius: 12px; background: #fff;
-            text-align: center; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+            flex: 1; min-width: 100px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; 
+            background: #fff; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center;
         }
-        .btn-opt:hover { background: #f9f9f9; }
-        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; font-weight: 800; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* 하단 진행바 */
-        .progress-fixed { position: fixed; bottom: 0; left: 0; width: 100%; height: 6px; background: #eee; z-index: 1000; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* 하단 네비게이션 */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; box-sizing: border-box; z-index: 1000; }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+        .btn-prev { background: #f0f0f0; color: #555; flex: 0.4; }
+        .btn-next { background: var(--primary); color: white; flex: 1; }
 
         .hidden { display: none !important; }
-        .full-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
-
-        /* 가족관계 테이블 */
-        .fam-grid { display: grid; grid-template-columns: 0.6fr 0.8fr 0.5fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
-        .fam-grid input, .fam-grid select { padding: 10px; font-size: 0.9rem; }
+        .split { display: flex; gap: 5px; align-items: center; }
+        .split input { flex: 1; text-align: center; }
 
         /* 인쇄 설정 */
         @media print {
-            .no-print, .header, .progress-fixed, .full-btn { display: none !important; }
+            .no-print, .header, .progress, .bottom-nav { display: none !important; }
             #report-area { display: block !important; }
-            body { background: white; padding: 0; font-size: 10pt; }
-            .card { box-shadow: none; padding: 0; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10pt; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 10px; }
             th, td { border: 1px solid #000; padding: 5px; text-align: center; }
-            th { background: #f0f0f0; width: 15%; }
+            th { background: #eee; width: 15%; }
             td.text-left { text-align: left; padding-left: 5px; }
-            .section-head { font-size: 12pt; font-weight: bold; border-bottom: 2px solid #000; margin: 15px 0 5px 0; }
             .page-break { page-break-before: always; }
         }
     </style>
 </head>
 <body>
 
-<div class="header no-print">
-    노원구 꿈드림
-    <span class="admin-btn" onclick="showAdmin()">🔒</span>
-</div>
+<div class="header no-print">노원구 꿈드림 <span style="position:absolute; right:20px; font-size:0.8rem; color:#ccc; cursor:pointer;" onclick="showAdmin()">🔒</span></div>
+<div class="progress" id="progress-bar"></div>
 
-<div id="intro-screen" class="container text-center" style="margin-top:120px;">
-    <div class="q-box show">
-        <h1 style="color:var(--primary); font-size:2rem; margin-bottom:10px;">희망 서비스 조사표</h1>
-        <p style="color:#666; margin:40px 0; line-height:1.8;">
-            안녕하세요!<br>꿈드림 센터에 오신 것을 환영합니다.<br>
-            <strong>편안하고 솔직하게</strong> 답변해 주세요.
+<div id="intro-page" class="container text-center" style="margin-top:100px;">
+    <div class="card">
+        <h1 style="color:var(--primary); margin-bottom:10px;">희망 서비스 조사표</h1>
+        <p style="color:#666; line-height:1.6; margin-bottom:40px;">
+            안녕하세요.<br>꿈드림 센터에 오신 것을 환영합니다.<br>
+            <strong>편안하고 솔직하게</strong> 작성해 주세요.
         </p>
-        <button class="full-btn" onclick="startSurvey()">시작하기</button>
+        <button class="btn btn-next" style="width:100%;" onclick="startSurvey()">시작하기</button>
     </div>
 </div>
 
-<div id="survey-screen" class="container hidden">
-    
-    <div id="q-basic" class="q-box show">
-        <h2>기본 인적사항</h2>
-        <div class="form-group" style="margin-top:20px;">
-            <label>성명</label>
-            <input type="text" id="userName" placeholder="이름 입력" onchange="next('q-gender')">
-        </div>
-    </div>
+<div id="survey-wrap" class="container hidden">
 
-    <div id="q-gender" class="q-box">
-        <label>성별</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'gender', '남'); next('q-birth');">남자</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'gender', '여'); next('q-birth');">여자</div>
-        </div>
-    </div>
+    <div id="page-1" class="page-section active">
+        <div class="card">
+            <h2>1. 기본 인적사항</h2>
+            
+            <div class="form-group">
+                <label>성명</label>
+                <input type="text" id="userName" placeholder="이름 입력">
+            </div>
 
-    <div id="q-birth" class="q-box">
-        <label>생년월일</label>
-        <div class="split-box">
-            <input type="tel" id="birthY" placeholder="년(4자리)" maxlength="4" oninput="checkLen(this,4,'birthM')">
-            <input type="tel" id="birthM" placeholder="월" maxlength="2" oninput="checkLen(this,2,'birthD')">
-            <input type="tel" id="birthD" placeholder="일" maxlength="2" oninput="checkLen(this,2,'q-rrn')">
-        </div>
-    </div>
+            <div class="form-group">
+                <label>성별</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'gender', '남')">남자</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'gender', '여')">여자</div>
+                </div>
+            </div>
 
-    <div id="q-rrn" class="q-box">
-        <label>주민등록번호 <span class="sub-text">(13자리)</span></label>
-        <div class="split-box">
-            <input type="tel" id="rrn1" placeholder="앞 6자리" maxlength="6" oninput="checkLen(this,6,'rrn2')">
-            <span>-</span>
-            <input type="tel" id="rrn2" placeholder="뒤 7자리" maxlength="7" oninput="checkLen(this,7,'q-addr')">
-        </div>
-    </div>
+            <div class="form-group">
+                <label>주민등록번호 (13자리)</label>
+                <div class="split">
+                    <input type="tel" id="rrn1" placeholder="앞 6자리" maxlength="6" oninput="autoCalcBirth(this)">
+                    <span>-</span>
+                    <input type="tel" id="rrn2" placeholder="뒤 7자리" maxlength="7">
+                </div>
+                <div style="margin-top:8px; font-size:0.9rem; color:#666;">
+                    생년월일 자동계산: <span id="displayBirth" style="font-weight:bold; color:var(--primary);">입력 대기중</span>
+                </div>
+            </div>
 
-    <div id="q-addr" class="q-box">
-        <label>주소</label>
-        <div class="split-box" style="margin-bottom:10px;">
-            <input type="text" id="postcode" placeholder="우편번호" readonly>
-            <button class="btn-opt" style="flex:0.5; min-width:auto; padding:10px;" onclick="execPostcode()">검색</button>
-        </div>
-        <input type="text" id="address" placeholder="기본 주소" readonly style="margin-bottom:10px;">
-        <input type="text" id="detailAddr" placeholder="상세 주소 입력" onchange="next('q-contact')">
-    </div>
+            <div class="form-group">
+                <label>주소</label>
+                <div class="split" style="margin-bottom:5px;">
+                    <input type="text" id="postcode" placeholder="우편번호" readonly style="flex:0.4;">
+                    <button class="btn-opt" style="flex:0.3; padding:10px; font-size:0.9rem;" onclick="execPostcode()">검색</button>
+                </div>
+                <input type="text" id="address" placeholder="주소" readonly style="margin-bottom:5px;">
+                <input type="text" id="detailAddr" placeholder="상세주소 입력">
+            </div>
 
-    <div id="q-contact" class="q-box">
-        <label>본인 연락처</label>
-        <div class="split-box">
-            <input type="tel" id="tel1" placeholder="010" maxlength="3" oninput="checkLen(this,3,'tel2')">
-            <input type="tel" id="tel2" placeholder="0000" maxlength="4" oninput="checkLen(this,4,'tel3')">
-            <input type="tel" id="tel3" placeholder="0000" maxlength="4" oninput="checkLen(this,4,'ptel1')">
-        </div>
-        <label style="margin-top:20px;">보호자 연락처</label>
-        <div class="split-box">
-            <input type="tel" id="ptel1" placeholder="010" maxlength="3" oninput="checkLen(this,3,'ptel2')">
-            <input type="tel" id="ptel2" placeholder="0000" maxlength="4" oninput="checkLen(this,4,'ptel3')">
-            <input type="tel" id="ptel3" placeholder="0000" maxlength="4" oninput="checkLen(this,4,'q-status')">
-        </div>
-    </div>
+            <div class="form-group">
+                <label>본인 연락처</label>
+                <div class="split">
+                    <input type="tel" id="tel1" placeholder="010" maxlength="3">
+                    <input type="tel" id="tel2" placeholder="0000" maxlength="4">
+                    <input type="tel" id="tel3" placeholder="0000" maxlength="4">
+                </div>
+            </div>
 
-    <div id="q-status" class="q-box">
-        <label>현재 상태</label>
-        <div class="btn-group" style="flex-direction:column;">
-            <div class="btn-opt" onclick="selectOpt(this, 'status', '학교밖청소년'); next('q-school');">학교 밖 청소년 (자퇴, 미진학 등)</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'status', '고졸검정고시합격'); next('q-school');">고졸 검정고시 합격 청소년</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'status', '학업중단숙려제'); next('q-school');">학업중단 숙려제 (상담 중)</div>
-        </div>
-    </div>
+            <div class="form-group">
+                <label>보호자 연락처</label>
+                <div class="split">
+                    <input type="tel" id="ptel1" placeholder="010" maxlength="3">
+                    <input type="tel" id="ptel2" placeholder="0000" maxlength="4">
+                    <input type="tel" id="ptel3" placeholder="0000" maxlength="4">
+                </div>
+            </div>
 
-    <div id="q-school" class="q-box">
-        <label>언제까지 학교에 다녔나요?</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'schLvl', '초등학교'); showGrades(6);">초등학교</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'schLvl', '중학교'); showGrades(3);">중학교</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'schLvl', '고등학교'); showGrades(3);">고등학교</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'schLvl', '미진학'); next('q-dropdate');">미진학</div>
-        </div>
-        
-        <div id="grade-wrapper" class="hidden" style="margin-top:20px; border-top:1px dashed #ddd; padding-top:20px;">
-            <label>학년</label>
-            <div id="grade-area" class="btn-group" style="margin-bottom:15px;"></div>
-            <label>학기</label>
-            <div class="btn-group">
-                <div class="btn-opt" onclick="selectOpt(this, 'semester', '1학기'); next('q-dropdate');">1학기</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'semester', '2학기'); next('q-dropdate');">2학기</div>
+            <div class="form-group">
+                <label>현재 상태</label>
+                <div class="btn-group" style="flex-direction:column;">
+                    <div class="btn-opt" onclick="selBtn(this, 'status', '학교밖청소년')">학교 밖 청소년 (자퇴, 미진학 등)</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'status', '고졸검정고시합격')">고졸 검정고시 합격 청소년</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'status', '학업중단숙려제')">학업중단 숙려제 (상담 중)</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="q-dropdate" class="q-box">
-        <label>학교를 그만둔 날짜</label>
-        <div class="split-box">
-            <input type="tel" id="dropY" placeholder="20XX" maxlength="4" oninput="checkLen(this,4,'dropM')"><span>년</span>
-            <input type="tel" id="dropM" placeholder="월" maxlength="2" oninput="checkLen(this,2,'dropD')"><span>월</span>
-            <input type="tel" id="dropD" placeholder="일" maxlength="2" oninput="checkLen(this,2,'q-reason1')"><span>일</span>
-        </div>
-    </div>
+    <div id="page-2" class="page-section">
+        <div class="card">
+            <h2>2. 학업 중단 및 배경</h2>
+            
+            <div class="form-group">
+                <label>언제까지 학교에 다녔나요?</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selSchool(this, '초')">초등학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '중')">중학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '고')">고등학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '미진학')">미진학</div>
+                </div>
+            </div>
 
-    <div id="q-reason1" class="q-box">
-        <label>그만둔 이유 (1순위)</label>
-        <p class="desc">가장 큰 이유 하나를 골라주세요.</p>
-        <div class="btn-group" id="reason1-list"></div>
-    </div>
+            <div id="school-detail" class="hidden" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:20px;">
+                <label>학년</label>
+                <div id="grade-opts" class="btn-group" style="margin-bottom:15px;"></div>
+                <label>학기</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'semester', '1학기')">1학기</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'semester', '2학기')">2학기</div>
+                </div>
+            </div>
 
-    <div id="q-reason2" class="q-box">
-        <label>2순위 (선택)</label>
-        <div class="btn-group" id="reason2-list"></div>
-    </div>
+            <div class="form-group">
+                <label>학교를 그만둔 날짜</label>
+                <div class="split">
+                    <input type="tel" id="dropY" placeholder="년(4자리)" maxlength="4">
+                    <input type="tel" id="dropM" placeholder="월" maxlength="2">
+                    <input type="tel" id="dropD" placeholder="일" maxlength="2">
+                </div>
+            </div>
 
-    <div id="q-reason3" class="q-box">
-        <label>3순위 (선택)</label>
-        <div class="btn-group" id="reason3-list"></div>
-    </div>
+            <div class="form-group">
+                <label>그만둔 이유 (1순위)</label>
+                <select id="reason1" onchange="updateReasons()">
+                    <option value="">선택해주세요</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>그만둔 이유 (2순위)</label>
+                <select id="reason2" onchange="updateReasons()">
+                    <option value="">선택 (없으면 생략)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>그만둔 이유 (3순위)</label>
+                <select id="reason3">
+                    <option value="">선택 (없으면 생략)</option>
+                </select>
+            </div>
+            <input type="text" id="reasonEtc" class="hidden" placeholder="기타 사유 입력" style="width:100%; margin-top:5px;">
 
-    <div id="q-parent-agree" class="q-box">
-        <label>그만둘 당시 부모님(보호자) 의견</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'agree', '일치(찬성)'); next('q-path');">일치(찬성)</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'agree', '일치(반대)'); next('q-path');">일치(반대)</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'agree', '불일치'); next('q-path');">불일치</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'agree', '무관심'); next('q-path');">무관심</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'agree', '기타'); next('q-path');">기타</div>
-        </div>
-    </div>
-
-    <div id="q-path" class="q-box">
-        <label>꿈드림 센터 방문 경로</label>
-        <div class="btn-group" id="path-list"></div>
-        <div id="org-list" class="hidden btn-group" style="margin-top:15px; background:#f9f9f9; padding:10px; border-radius:10px;"></div>
-    </div>
-
-    <div id="q-family" class="q-box">
-        <label>가족 구성원 (최대 5명)</label>
-        <div class="fam-grid" style="font-weight:bold; color:#666; text-align:center;">
-            <span>관계</span><span>이름</span><span>나이</span><span>연락처</span><span>동거</span>
-        </div>
-        <div id="fam-inputs"></div>
-        
-        <div style="margin-top:30px;">
-            <label>현재 가정 형태</label>
-            <div class="btn-group">
-                <div class="btn-opt" onclick="selectOpt(this, 'famType', '친부모'); next('q-econ');">친부모</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'famType', '편부'); next('q-econ');">편부</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'famType', '편모'); next('q-econ');">편모</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'famType', '조손'); next('q-econ');">조손</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'famType', '기타'); next('q-econ');">기타</div>
+            <div class="form-group">
+                <label>부모님(보호자) 의견</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'agree', '일치(찬성)')">일치(찬성)</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'agree', '일치(반대)')">일치(반대)</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'agree', '불일치')">불일치</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'agree', '무관심')">무관심</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'agree', '기타')">기타</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="q-econ" class="q-box">
-        <label>가정의 경제상태</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'econ', '일반수급'); next('q-money');">일반수급</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'econ', '조건부수급'); next('q-money');">조건부수급</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'econ', '차상위'); next('q-money');">차상위</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'econ', '해당없음'); next('q-money');">해당없음</div>
-        </div>
-    </div>
-
-    <div id="q-money" class="q-box">
-        <label>물질적 지원(용돈 등)은 충분한가요?</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'support', '충분'); document.getElementById('q-money-lack').classList.add('hidden'); next('q-pocket');">충분</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'support', '보통'); document.getElementById('q-money-lack').classList.add('hidden'); next('q-pocket');">보통</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'support', '부족'); document.getElementById('q-money-lack').classList.remove('hidden');">부족</div>
-        </div>
-        
-        <div id="q-money-lack" class="hidden" style="margin-top:20px;">
-            <label>부족한 비용은 어떻게 충당하나요?</label>
-            <div class="btn-group">
-                <div class="btn-opt" onclick="selectOpt(this, 'howMoney', '알바'); next('q-pocket');">일(알바)</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'howMoney', '지원금'); next('q-pocket');">국가 지원금</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'howMoney', '아껴씀'); next('q-pocket');">아껴씀</div>
+    <div id="page-3" class="page-section">
+        <div class="card">
+            <h2>3. 방문 경로</h2>
+            <div id="path-list" class="btn-group" style="flex-direction:column;"></div>
+            
+            <div id="org-list" class="hidden" style="margin-top:20px; border-top:1px dashed #ddd; padding-top:20px;">
+                <label>기관 상세 선택</label>
+                <div class="btn-group" id="org-opts"></div>
             </div>
         </div>
     </div>
 
-    <div id="q-pocket" class="q-box">
-        <label>한 달 용돈은 얼마나 쓰나요?</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'pocket', '없음'); next('q-interest');">없음</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'pocket', '10미만'); next('q-interest');">10만원 미만</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'pocket', '10-20'); next('q-interest');">10~20만원</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'pocket', '30이상'); next('q-interest');">30만원 이상</div>
+    <div id="page-4" class="page-section">
+        <div class="card">
+            <h2>4. 가족 및 경제</h2>
+            
+            <div class="form-group">
+                <label>가족 구성원 (5명까지)</label>
+                <div style="display:grid; grid-template-columns:0.6fr 0.8fr 0.5fr 1fr 0.5fr; gap:5px; text-align:center; font-size:0.8rem; font-weight:bold; color:#666;">
+                    <span>관계</span><span>이름</span><span>나이</span><span>연락처</span><span>동거</span>
+                </div>
+                <div id="fam-rows"></div>
+            </div>
+
+            <div class="form-group">
+                <label>가정 형태</label>
+                <div class="btn-group" id="fam-type-area"></div>
+            </div>
+
+            <div class="form-group">
+                <label>경제 상태</label>
+                <div class="btn-group" id="econ-area"></div>
+            </div>
+
+            <div class="form-group">
+                <label>용돈 만족도</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'money', '충분')">충분</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'money', '보통')">보통</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'money', '부족')">부족</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>부족 시 충당 방법</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'howMoney', '알바')">알바</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'howMoney', '지원금')">지원금</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'howMoney', '아껴씀')">아껴씀</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>가정 내 관심도</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'interest', '매우충분')">매우 충분</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'interest', '보통')">보통</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'interest', '부족')">부족</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>고민 의논 대상</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="selBtn(this, 'talk', '부모')">부모님</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'talk', '형제')">형제자매</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'talk', '친구')">친구</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'talk', '선생님')">선생님</div>
+                    <div class="btn-opt" onclick="selBtn(this, 'talk', '없음')">없음</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="q-interest" class="q-box">
-        <label>가정 내 관심과 존중 정도</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'respect', '매우충분'); next('q-talk');">매우 충분</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'respect', '보통'); next('q-talk');">보통</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'respect', '부족'); next('q-talk');">부족</div>
+    <div id="page-5" class="page-section">
+        <div class="card">
+            <h2>5. 어려움 및 서비스 욕구</h2>
+            <div id="diff-area"></div>
+            
+            <h3 style="background:white; padding-left:0;">학교 중단 후 목표</h3>
+            <div class="btn-group">
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '검정고시')">검정고시</div>
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '복학')">복학</div>
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '진학')">진학</div>
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '취업')">취업</div>
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '자격증')">자격증</div>
+                <div class="btn-opt" onclick="selBtn(this, 'goal', '미정')">미정</div>
+            </div>
+
+            <h3 style="background:white; padding-left:0;">희망 서비스 (모두 선택)</h3>
+            <div id="service-area"></div>
         </div>
     </div>
 
-    <div id="q-talk" class="q-box">
-        <label>고민이 있을 때 누구와 얘기하나요?</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'talk', '부모'); next('q-diff');">부모님</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'talk', '형제'); next('q-diff');">형제자매</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'talk', '친구'); next('q-diff');">친구</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'talk', '선생님'); next('q-diff');">선생님</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'talk', '없음'); next('q-diff');">없음</div>
-        </div>
-    </div>
+    <div id="page-6" class="page-section">
+        <div class="card">
+            <h2>6. 과거 생활 및 건강</h2>
+            <label>과거 학교생활</label>
+            <div class="btn-group" style="margin-bottom:30px;">
+                <div class="btn-opt" onclick="selBtn(this, 'pastSchool', '만족')">만족</div>
+                <div class="btn-opt" onclick="selBtn(this, 'pastSchool', '보통')">보통</div>
+                <div class="btn-opt" onclick="selBtn(this, 'pastSchool', '불만족')">불만족</div>
+            </div>
 
-    <div id="q-diff" class="q-box">
-        <label>현재 겪고 있는 어려움 (모두 선택)</label>
-        <div id="diff-area"></div>
-        <button class="full-btn" onclick="next('q-goal')">선택 완료</button>
-    </div>
-
-    <div id="q-goal" class="q-box">
-        <label>학교 중단 후 목표</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '검정고시'); next('q-service');">검정고시</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '복학'); next('q-service');">복학</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '진학'); next('q-service');">상급학교 진학</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '취업'); next('q-service');">취업</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '자격증'); next('q-service');">자격증</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'goal', '미정'); next('q-service');">아직 모름</div>
-        </div>
-    </div>
-
-    <div id="q-service" class="q-box">
-        <label>희망 서비스 (모두 선택)</label>
-        <div id="service-area"></div>
-        <button class="full-btn" onclick="next('q-history')">선택 완료</button>
-    </div>
-
-    <div id="q-history" class="q-box">
-        <label>과거 학교생활 만족도</label>
-        <div class="btn-group">
-            <div class="btn-opt" onclick="selectOpt(this, 'past', '만족'); document.getElementById('q-health').classList.remove('hidden');">만족</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'past', '보통'); document.getElementById('q-health').classList.remove('hidden');">보통</div>
-            <div class="btn-opt" onclick="selectOpt(this, 'past', '불만족'); document.getElementById('q-health').classList.remove('hidden');">불만족</div>
-        </div>
-        
-        <div id="q-health" class="hidden" style="margin-top:30px;">
             <label>현재 건강 상태</label>
             <div class="btn-group">
-                <div class="btn-opt" onclick="selectOpt(this, 'health', '좋음'); startScale();">건강함</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'health', '보통'); startScale();">보통</div>
-                <div class="btn-opt" onclick="selectOpt(this, 'health', '나쁨'); startScale();">나쁨(치료중)</div>
+                <div class="btn-opt" onclick="selBtn(this, 'health', '좋음')">좋음</div>
+                <div class="btn-opt" onclick="selBtn(this, 'health', '보통')">보통</div>
+                <div class="btn-opt" onclick="selBtn(this, 'health', '나쁨')">나쁨(치료중)</div>
             </div>
         </div>
     </div>
 
-    <div id="q-scale" class="q-box">
-        <h2 id="scale-title">척도 검사</h2>
-        <div id="scale-area"></div>
-        <button id="scale-next-btn" class="full-btn" onclick="nextScale()">다음</button>
+    <div id="page-7" class="page-section">
+        <div class="card">
+            <h2>7. 자립역량 척도</h2>
+            <div id="jarip-area"></div>
+        </div>
     </div>
 
-    <div id="end-screen" class="container hidden text-center">
+    <div id="page-8" class="page-section">
+        <div class="card">
+            <h2>8. 심리정서 척도</h2>
+            <div id="simni-area"></div>
+        </div>
+    </div>
+
+    <div id="page-end" class="page-section text-center" style="margin-top:100px;">
         <h1 style="font-size:3rem;">🎉</h1>
-        <h2>수고하셨습니다!</h2>
-        <p style="color:#666;">작성이 모두 완료되었습니다.<br>태블릿을 상담 선생님께 드려주세요.</p>
-        <button class="full-btn" onclick="location.reload()" style="background:#333;">처음으로</button>
+        <h2>작성이 완료되었습니다!</h2>
+        <p style="color:#666;">수고하셨습니다. 태블릿을 반납해 주세요.</p>
+        <button class="btn btn-next" onclick="location.reload()" style="margin-top:30px; width:auto; padding:15px 40px;">처음으로</button>
     </div>
 
 </div>
 
-<div class="progress-fixed no-print"><div class="progress-fill" id="progress"></div></div>
+<div id="bottom-bar" class="bottom-nav hidden no-print">
+    <button class="btn btn-prev" onclick="movePage(-1)">이전</button>
+    <button class="btn btn-next" onclick="movePage(1)" id="btn-next">다음</button>
+</div>
 
 <div id="admin-view" class="container hidden no-print">
+    </div>
+<div id="report-area" class="hidden">
     </div>
 
 <script>
@@ -386,130 +382,172 @@
     try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); } catch(e){}
 
     // [2] 상태 관리
+    let currPage = 0;
+    const totalPages = 8; 
     let userData = {};
     let answers = {};
-    let scaleStep = 0; // 0: Jarip, 1: Simni
     let userType = "YOUTH";
 
     window.onload = function() {
-        initReasons();
-        initPath();
-        initDiff();
-        initService();
-        initFam();
+        renderOptions();
     };
 
-    // UI 초기화
-    function initReasons() {
-        const createBtns = (arr, id) => {
-            const div = document.getElementById(id);
-            arr.forEach(r => {
-                div.innerHTML += `<div class="btn-opt" onclick="selectReason(this, '${id}', '${r}')">${r}</div>`;
-            });
-        };
-        createBtns(REASON_OPTIONS, 'reason1-list');
-    }
-
-    function initPath() {
-        const d = document.getElementById('path-list');
-        PATH_OPTS.forEach(p => {
-            let click = p.type === '기관' ? `document.getElementById('org-list').classList.remove('hidden')` : `next('q-family')`;
-            d.innerHTML += `<div class="btn-opt" onclick="selectOpt(this, 'path', '${p.label}'); ${click}">${p.label}</div>`;
-        });
+    function renderOptions() {
+        // 중단사유
+        const r1 = document.getElementById('reason1');
+        REASON_OPTIONS.forEach(r => r1.add(new Option(r, r)));
         
-        const orgD = document.getElementById('org-list');
-        ORG_DETAILS.forEach(o => {
-            orgD.innerHTML += `<div class="btn-opt" onclick="selectOpt(this, 'orgDetail', '${o}'); next('q-family')">${o}</div>`;
+        // 방문경로
+        const pList = document.getElementById('path-list');
+        VISIT_PATHS.forEach(p => {
+            let click = p.includes('기관') ? `document.getElementById('org-list').classList.remove('hidden')` : `document.getElementById('org-list').classList.add('hidden')`;
+            pList.innerHTML += `<div class="btn-opt" onclick="selBtn(this, 'path', '${p}'); ${click}">${p}</div>`;
         });
+        document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="selBtn(this, 'org', '${o}')">${o}</div>`).join('');
+
+        // 가정형태/경제
+        document.getElementById('fam-type-area').innerHTML = FAMILY_TYPE_OPTIONS.map(o => `<div class="btn-opt" onclick="selBtn(this, 'famType', '${o}')">${o}</div>`).join('');
+        document.getElementById('econ-area').innerHTML = ECON_STATUS_OPTIONS.map(o => `<div class="btn-opt" onclick="selBtn(this, 'econ', '${o}')">${o}</div>`).join('');
+
+        // 가족입력칸
+        let famHtml = "";
+        for(let i=1; i<=5; i++) famHtml += `<div class="fam-grid"><input type="text" id="fr${i}"><input type="text" id="fn${i}"><input type="tel" id="fa${i}"><input type="tel" id="ft${i}"><select id="fl${i}"><option value="Y">O</option><option value="N">X</option></select></div>`;
+        document.getElementById('fam-rows').innerHTML = famHtml;
+
+        // 어려움/서비스
+        renderCheckGroup('diff-area', DIFFICULTY_GROUPS, 'diff');
+        renderCheckGroup('service-area', SERVICE_GROUPS, 'serv');
     }
 
-    function initDiff() {
-        const d = document.getElementById('diff-area');
-        for(let g in DIFFICULTY_GROUPS) {
-            d.innerHTML += `<h3>${g}</h3><div class="btn-group">` + 
-                DIFFICULTY_GROUPS[g].map(i => `<label><input type="checkbox" name="diff" value="${i}">${i}</label>`).join('') + `</div>`;
+    function renderCheckGroup(id, data, name) {
+        const div = document.getElementById(id);
+        for(let key in data) {
+            div.innerHTML += `<h3>${key}</h3><div class="btn-group">` + 
+                data[key].map(i => `<div class="btn-opt" onclick="toggleCheck(this, '${name}', '${i}')">${i}</div>`).join('') + `</div>`;
         }
     }
 
-    function initService() {
-        const d = document.getElementById('service-area');
-        for(let g in SERVICE_GROUPS) {
-            d.innerHTML += `<h3>${g}</h3><div class="btn-group">` + 
-                SERVICE_GROUPS[g].map(i => `<label><input type="checkbox" name="serv" value="${i}">${i}</label>`).join('') + `</div>`;
-        }
-    }
-
-    function initFam() {
-        const d = document.getElementById('fam-inputs');
-        for(let i=1; i<=5; i++) {
-            d.innerHTML += `<div class="fam-grid"><input type="text" id="fr${i}"><input type="text" id="fn${i}"><input type="number" id="fa${i}"><input type="tel" id="ft${i}"><select id="fl${i}"><option value="Y">O</option><option value="N">X</option></select></div>`;
-        }
-    }
-
-    // 로직
+    // 로직 함수들
     function startSurvey() {
-        document.getElementById('intro-screen').classList.add('hidden');
-        document.getElementById('survey-screen').classList.remove('hidden');
-        document.getElementById('q-basic').classList.add('show');
+        document.getElementById('intro-page').classList.add('hidden');
+        document.getElementById('survey-wrap').classList.remove('hidden');
+        document.getElementById('bottom-bar').classList.remove('hidden');
+        movePage(1);
     }
 
-    function next(nextId) {
-        if(nextId === 'q-reason1') { // 날짜 다 입력 시
-            if(!document.getElementById('dropD').value) return; 
-        }
+    function movePage(dir) {
+        if(currPage > 0) document.getElementById(`page-${currPage}`).classList.remove('active');
+        currPage += dir;
         
-        const el = document.getElementById(nextId);
-        if(el) {
-            el.classList.add('show');
-            setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-        }
-        updateProgress();
+        if(currPage < 1) currPage = 1;
+        if(currPage === 7) initScale('jarip');
+        if(currPage === 8) initScale('simni');
+        if(currPage > totalPages) { submitFinal(); return; }
+
+        document.getElementById(`page-${currPage}`).classList.add('active');
+        
+        // 버튼/진행바
+        const nextBtn = document.getElementById('btn-next');
+        nextBtn.innerText = (currPage === totalPages) ? "제출하기" : "다음";
+        document.getElementById('progress-bar').style.width = (currPage/totalPages*100) + "%";
+        window.scrollTo(0,0);
     }
 
-    function checkLen(el, max, nextId) {
-        if(el.value.length >= max) {
-            el.value = el.value.slice(0, max);
-            if(nextId) {
-                const n = document.getElementById(nextId);
-                if(n) {
-                    if(n.tagName === 'DIV') next(nextId); // 박스면 보여주기
-                    else n.focus(); // 입력창이면 포커스 이동
-                }
+    function autoCalcBirth(el) {
+        if(el.value.length === 6) {
+            const y = parseInt(el.value.substr(0,2));
+            const fullY = y < 30 ? 2000+y : 1900+y;
+            const m = el.value.substr(2,2);
+            const d = el.value.substr(4,2);
+            document.getElementById('displayBirth').innerText = `${fullY}년 ${m}월 ${d}일`;
+            
+            // 척도 타입 결정
+            const age = new Date().getFullYear() - fullY;
+            userType = (age >= 13) ? "YOUTH" : "CHILD";
+            
+            document.getElementById('rrn2').focus();
+        }
+    }
+
+    function selSchool(el, lvl) {
+        selBtn(el, 'schLvl', lvl);
+        const area = document.getElementById('school-detail');
+        const gArea = document.getElementById('grade-opts');
+        
+        if(lvl === '미진학') { area.classList.add('hidden'); return; }
+        
+        area.classList.remove('hidden');
+        gArea.innerHTML = "";
+        let max = (lvl === '초') ? 6 : 3;
+        for(let i=1; i<=max; i++) {
+            gArea.innerHTML += `<div class="btn-opt" onclick="selBtn(this, 'grade', '${i}학년')">${i}학년</div>`;
+        }
+    }
+
+    function updateReasons() {
+        const r1 = document.getElementById('reason1').value;
+        const r2 = document.getElementById('reason2');
+        const r3 = document.getElementById('reason3');
+        const etc = document.getElementById('reasonEtc');
+
+        r2.innerHTML = '<option value="">선택</option>';
+        r3.innerHTML = '<option value="">선택</option>';
+
+        REASON_OPTIONS.forEach(r => {
+            if(r !== r1) {
+                r2.add(new Option(r, r));
+                r3.add(new Option(r, r));
             }
-        }
+        });
+
+        if(r1.includes('기타')) etc.classList.remove('hidden');
+        else etc.classList.add('hidden');
     }
 
-    function selectOpt(el, key, val) {
+    // 공통 선택 함수 (단일)
+    function selBtn(el, key, val) {
         userData[key] = val;
-        const siblings = el.parentElement.children;
-        for(let s of siblings) s.classList.remove('selected');
+        // 스타일 처리
+        const sibs = el.parentElement.children;
+        for(let s of sibs) s.classList.remove('selected');
         el.classList.add('selected');
     }
 
-    function selectReason(el, id, val) {
-        selectOpt(el, id, val);
+    // 공통 선택 함수 (다중)
+    function toggleCheck(el, name, val) {
+        el.classList.toggle('selected');
+        if(!userData[name]) userData[name] = [];
         
-        if(id === 'reason1-list') {
-            const d2 = document.getElementById('reason2-list');
-            d2.innerHTML = `<div class="btn-opt" onclick="next('q-reason3');">선택 안 함</div>`;
-            REASON_OPTIONS.filter(r => r !== val).forEach(r => {
-                d2.innerHTML += `<div class="btn-opt" onclick="selectReason(this, 'reason2-list', '${r}'); next('q-reason3')">${r}</div>`;
-            });
-            next('q-reason2');
-        }
+        if(el.classList.contains('selected')) userData[name].push(val);
+        else userData[name] = userData[name].filter(v => v !== val);
     }
 
-    function showGrades(max) {
-        const area = document.getElementById('grade-wrapper');
-        const btns = document.getElementById('grade-btns');
-        btns.innerHTML = "";
+    // 척도 렌더링
+    function initScale(part) {
+        const list = SCALE_DATA[userType][part];
+        const div = document.getElementById(part + '-area');
+        div.innerHTML = "";
         
-        if(max === 0) { area.classList.add('hidden'); next('q-dropdate'); return; }
-        
-        area.classList.remove('hidden');
-        for(let i=1; i<=max; i++) {
-            btns.innerHTML += `<div class="btn-opt" onclick="selectOpt(this,'grade','${i}학년')">${i}학년</div>`;
-        }
+        list.forEach((q, i) => {
+            div.innerHTML += `
+                <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:10px;">
+                    <div style="font-weight:bold; margin-bottom:8px;">${i+1}. ${q.t}</div>
+                    <div class="btn-group">
+                        <div class="btn-opt" onclick="saveAns('${part}',${q.n},1,this,${q.rev},${q.crit},'${q.d}')">전혀아님</div>
+                        <div class="btn-opt" onclick="saveAns('${part}',${q.n},2,this,${q.rev},${q.crit},'${q.d}')">아니다</div>
+                        <div class="btn-opt" onclick="saveAns('${part}',${q.n},3,this,${q.rev},${q.crit},'${q.d}')">보통</div>
+                        <div class="btn-opt" onclick="saveAns('${part}',${q.n},4,this,${q.rev},${q.crit},'${q.d}')">그렇다</div>
+                        <div class="btn-opt" onclick="saveAns('${part}',${q.n},5,this,${q.rev},${q.crit},'${q.d}')">매우그렇다</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function saveAns(part, n, v, el, r, c, d) {
+        answers[`${part}_${n}`] = {val:v, rev:r, crit:c, domain:d};
+        const sibs = el.parentElement.children;
+        for(let s of sibs) s.classList.remove('selected');
+        el.classList.add('selected');
     }
 
     function execPostcode() {
@@ -522,62 +560,42 @@
         }).open();
     }
 
-    function startScale() {
-        // 데이터 수집 (생략: userData에 저장된 값 활용)
-        const y2 = document.getElementById('rrn1').value.substr(0,2);
-        const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
-        userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
+    function submitFinal() {
+        // 데이터 수집 (입력창 값들)
+        userData.name = document.getElementById('userName').value;
+        userData.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
+        userData.addr = document.getElementById('address').value + " " + document.getElementById('detailAddr').value;
+        userData.tel = `${document.getElementById('tel1').value}-${document.getElementById('tel2').value}-${document.getElementById('tel3').value}`;
+        userData.ptel = `${document.getElementById('ptel1').value}-${document.getElementById('ptel2').value}-${document.getElementById('ptel3').value}`;
         
-        document.getElementById('q-history').classList.remove('show');
-        document.getElementById('q-scale').classList.add('show');
-        renderScale('jarip');
-    }
+        userData.dropDate = `${document.getElementById('dropY').value}.${document.getElementById('dropM').value}.${document.getElementById('dropD').value}`;
+        userData.reasons = [document.getElementById('reason1').value, document.getElementById('reason2').value, document.getElementById('reason3').value].filter(Boolean).join(", ");
+        
+        // 가족
+        let fam = [];
+        for(let i=1; i<=5; i++) {
+            let n = document.getElementById(`fn${i}`).value;
+            if(n) fam.push(`${document.getElementById(`fr${i}`).value}/${n}`);
+        }
+        userData.family = fam.join(", ");
 
-    function renderScale(part) {
-        const list = SCALE_DATA[userType][part];
-        const div = document.getElementById('scale-area');
-        const title = document.getElementById('scale-title');
+        const payload = { info: userData, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
         
-        title.innerText = part === 'jarip' ? "자립역량 척도" : "심리정서 척도";
-        div.innerHTML = "";
-        
-        list.forEach((q, i) => {
-            div.innerHTML += `
-                <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:10px;">
-                    <div style="font-weight:bold; margin-bottom:8px;">${i+1}. ${q.t}</div>
-                    <div class="btn-group">
-                        <label><input type="radio" name="${part}_${q.n}" value="1">전혀아님</label>
-                        <label><input type="radio" name="${part}_${q.n}" value="2">아니다</label>
-                        <label><input type="radio" name="${part}_${q.n}" value="3">보통</label>
-                        <label><input type="radio" name="${part}_${q.n}" value="4">그렇다</label>
-                        <label><input type="radio" name="${part}_${q.n}" value="5">매우그렇다</label>
-                    </div>
-                </div>`;
-        });
-    }
-
-    function nextScale() {
-        if(scaleStep === 0) {
-            scaleStep++;
-            renderScale('simni');
-            window.scrollTo(0,0);
-        } else {
-            document.getElementById('survey-screen').classList.add('hidden');
-            document.getElementById('end-screen').classList.remove('hidden');
-            if(db) { 
-                /* Firestore 저장 코드 (userData + answers) */ 
-                db.collection("intake_complete").add({
-                    info: userData, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
+        if(db) {
+            db.collection("intake_ok").add(payload).then(() => {
+                document.getElementById('survey-wrap').classList.add('hidden');
+                document.getElementById('bottom-bar').classList.add('hidden');
+                document.getElementById('page-end').classList.remove('hidden');
+            });
         }
     }
-
-    function updateProgress() {
-        const total = 20; 
-        const current = document.querySelectorAll('.q-box.show').length;
-        document.getElementById('progress-fill').style.width = (current/total*100) + "%";
+    
+    // 관리자 관련 함수 (showAdmin, loginAdmin, loadList, viewRpt)는 이전 코드 그대로 사용
+    function showAdmin() {
+        document.getElementById('intro-page').classList.add('hidden');
+        document.getElementById('admin-view').classList.remove('hidden');
     }
+    // ... (이전 코드의 admin 로직 복사)
 </script>
 </body>
 </html>
