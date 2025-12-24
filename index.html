@@ -148,35 +148,58 @@
         </div>
     </div>
 
-    <div id="page-2" class="page">
+<div id="page-2" class="page">
         <div class="card">
             <h2>2. 학업 중단 및 배경</h2>
-            <div class="form-group"><label>1. 언제까지 학교에 다녔습니까?</label>
+            
+            <div class="form-group">
+                <label>1. 언제까지 학교에 다녔습니까?</label>
                 <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'schLvl','초'); showGr(6);">초등학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','중'); showGr(3);">중학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','고'); showGr(3);">고등학교</div>
-                    <div class="btn-opt" onclick="sel(this,'schLvl','미진학'); showGr(0);">미진학</div>
+                    <div class="btn-opt" onclick="selSchool(this, '초', 6)">초등학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '중', 3)">중학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '고', 3)">고등학교</div>
+                    <div class="btn-opt" onclick="selSchool(this, '미진학', 0)">미진학</div>
                 </div>
             </div>
-            <div id="grade-wrap" class="hidden" style="margin-top:10px; background:#f9f9f9; padding:15px; border-radius:10px;">
-                <label>학년 / 학기</label>
-                <div id="grade-opts" class="btn-group" style="margin-bottom:10px;"></div>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'sem','1학기')">1학기</div><div class="btn-opt" onclick="sel(this,'sem','2학기')">2학기</div></div>
-            </div>
-            
-            <div class="form-group" style="margin-top:25px;"><label>2. 언제 그만두었습니까?</label>
-                <div class="split"><input type="tel" id="dY" placeholder="년(4자리)"><span>년</span><input type="tel" id="dM" placeholder="월"><span>월</span><input type="tel" id="dD" placeholder="일"><span>일</span></div>
+
+            <div id="grade-box" class="form-group hidden" style="background:#f9f9f9; padding:15px; border-radius:10px;">
+                <label>학년을 선택해 주세요</label>
+                <div id="grade-opts" class="btn-group"></div>
             </div>
 
-            <div class="form-group"><label>3. 학교를 그만두게 된 이유는? (1순위)</label>
-                <select id="reason1" onchange="updR()"><option value="">선택 (필수)</option></select>
+            <div id="semester-box" class="form-group hidden" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:-15px;">
+                <label>학기를 선택해 주세요</label>
+                <div class="btn-group">
+                    <div class="btn-opt" onclick="sel(this,'sem','1학기')">1학기</div>
+                    <div class="btn-opt" onclick="sel(this,'sem','2학기')">2학기</div>
+                </div>
             </div>
-            <div class="form-group"><label>2순위 (선택)</label><select id="reason2" onchange="updR()"></select></div>
-            <div class="form-group"><label>3순위 (선택)</label><select id="reason3"></select></div>
+
+            <div class="form-group" style="margin-top:25px;">
+                <label>2. 언제 학교를 그만두었습니까?</label>
+                <div class="split">
+                    <input type="number" id="dY" placeholder="년(4자리)" oninput="sliceLen(this, 4)"><span>년</span>
+                    <input type="number" id="dM" placeholder="월(2자리)" oninput="sliceLen(this, 2)"><span>월</span>
+                    <input type="number" id="dD" placeholder="일(2자리)" oninput="sliceLen(this, 2)"><span>일</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>3. 학교를 그만두게 된 이유는 무엇입니까? (1순위)</label>
+                <select id="reason1" onchange="updR()"><option value="">선택</option></select>
+            </div>
+            <div class="form-group">
+                <label>3. 학교를 그만두게 된 이유는 무엇입니까? (2순위)</label>
+                <select id="reason2" onchange="updR()"><option value="">선택</option></select>
+            </div>
+            <div class="form-group">
+                <label>3. 학교를 그만두게 된 이유는 무엇입니까? (3순위)</label>
+                <select id="reason3"><option value="">선택</option></select>
+            </div>
             <input type="text" id="reasonEtc" class="hidden text-left" placeholder="기타 사유를 입력하세요" style="width:100%; margin-top:5px;">
 
-            <div class="form-group" style="margin-top:25px;"><label>4. 그만두는 것에 대한 부모님 의견은?</label>
+            <div class="form-group" style="margin-top:25px;">
+                <label>4. 그만두는 것에 대한 부모님 의견은?</label>
                 <div id="agree-opts" class="btn-group"></div>
                 <input type="text" id="agreeEtc" class="hidden text-left" placeholder="기타 의견" style="width:100%; margin-top:5px;">
             </div>
@@ -669,3 +692,4 @@
 </script>
 </body>
 </html>
+
