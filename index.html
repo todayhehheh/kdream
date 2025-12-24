@@ -220,7 +220,7 @@
         </div>
     </div>
 
-    <div id="page-4" class="page">
+<div id="page-4" class="page">
         <div class="card">
             <h2>4. 가족 및 경제 상황</h2>
             <div class="form-group">
@@ -236,18 +236,27 @@
             
             <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
 
-            <div class="form-group"><label>2. 가정의 물질적 지원 정도</label>
-                <div class="grid-5" id="support-opts"></div>
-                <input type="text" id="supEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
+            <div class="form-group">
+                <label>2. 가정(부모님 또는 보호자)에서 물질적 지원(용돈, 학원비, 책값, 통신비, 옷 등)을 어느 정도나 받고 있다고 생각합니까?</label>
+                <div class="grid-5" id="support-opts">
+                    </div>
+                <input type="text" id="supEtc" class="hidden text-left" placeholder="기타 내용을 입력하세요" style="width:100%; margin-top:5px;">
             </div>
+
             <div id="lack-box" class="hidden" style="margin-bottom:25px; background:#f9f9f9; padding:15px; border-radius:10px;">
-                <label style="font-size:0.9rem; margin-bottom:10px;">2-1. 부족한 경우 어떻게 충당합니까?</label>
-                <div id="lack-opts" class="btn-group" style="flex-direction:column;"></div>
-                <input type="text" id="lackEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
+                <label style="font-size:0.95rem; margin-bottom:10px; line-height:1.4;">2-1. 가정에서 받는 물질적 지원이 충분하지 않은 경우, 나머지를 어떻게 충당합니까?</label>
+                <div id="lack-opts" class="btn-group" style="flex-direction:column;">
+                    </div>
+                <input type="text" id="lackEtc" class="hidden text-left" placeholder="기타 내용을 입력하세요" style="width:100%; margin-top:5px;">
             </div>
-            <div class="form-group"><label>2-2. 한 달 용돈 (생활비용)</label><div class="grid-5" id="money-opts"></div></div>
+
+            <div class="form-group">
+                <label>2-2. 한 달 생활비용(용돈)은 얼마나 쓰고 있습니까?</label>
+                <div class="grid-5" id="money-opts">
+                    </div>
+            </div>
         </div>
-    </div>
+    </div>>
 
     <div id="page-5" class="page">
         <div class="card">
@@ -440,21 +449,28 @@ function initAll() {
             document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
         }
 
-        // [4] 가족 및 경제 (안전장치 추가)
-        const fBg = document.getElementById('fam-bg-opts');
-        if(fBg && typeof FAMILY_BG_OPTIONS !== 'undefined') {
-            fBg.innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
-        }
+     // [가족/경제] 파트 (기존 코드 덮어쓰기)
+        document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
+        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
+        document.getElementById('econ-opts').innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
         
-        const fType = document.getElementById('fam-type-opts');
-        if(fType && typeof FAMILY_TYPE_OPTIONS !== 'undefined') {
-            fType.innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
-        }
+        // 2. 물질적 지원 (직접 정의하여 강제 출력)
+        const supportData = ["① 매우 충분", "② 충분", "③ 보통", "④ 부족", "⑤ 매우 부족", "⑥ 기타"];
+        document.getElementById('support-opts').innerHTML = supportData.map(o => 
+            `<div class="btn-opt" onclick="sel(this,'support','${o}'); chkLack('${o}')">${o}</div>`
+        ).join('');
 
-        const econ = document.getElementById('econ-opts');
-        if(econ && typeof ECON_STATUS_OPTIONS !== 'undefined') {
-            econ.innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
-        }
+        // 2-1. 부족 충당 (직접 정의)
+        const lackData = ["① 일(아르바이트 포함)을 해서 충당함", "② 국가나 지방자치단체의 지원금을 받고 있음", "③ 생활비용(용돈)이 충분하지 않지만 아껴 씀", "④ 기타"];
+        document.getElementById('lack-opts').innerHTML = lackData.map(o => 
+            `<div class="btn-opt" onclick="sel(this,'lackSol','${o}'); if('${o}'.includes('기타')) document.getElementById('lackEtc').classList.remove('hidden'); else document.getElementById('lackEtc').classList.add('hidden')">${o}</div>`
+        ).join('');
+
+        // 2-2. 용돈 (직접 정의)
+        const moneyData = ["① 전혀 없음", "② 10만원 미만", "③ 10~20만원", "④ 21~30만원", "⑤ 30만원 이상"];
+        document.getElementById('money-opts').innerHTML = moneyData.map(o => 
+            `<div class="btn-opt" onclick="sel(this,'pocket','${o}')">${o}</div>`
+        ).join('');}
 
         // [5] 나머지 옵션들 (안전장치 추가)
         if(document.getElementById('support-opts') && typeof LEVEL_5_SCALE !== 'undefined') {
@@ -777,8 +793,22 @@ function initAll() {
             el.value = el.value.slice(0, max);
         }
     }
+
+    // [4P] 물질적 지원 선택 시 로직 (부족하면 2-1 표시, 기타면 입력창 표시)
+    function chkLack(val) {
+        sel(event.currentTarget, 'support', val); // 값 저장
+        
+        // 부족/매우부족 선택 시 2-1 질문 보이기
+        if(val.includes('부족')) document.getElementById('lack-box').classList.remove('hidden');
+        else document.getElementById('lack-box').classList.add('hidden');
+        
+        // 기타 선택 시 입력창 보이기
+        if(val.includes('기타')) document.getElementById('supEtc').classList.remove('hidden');
+        else document.getElementById('supEtc').classList.add('hidden');
+    }
 </script>
 </body>
 </html>
+
 
 
