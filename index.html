@@ -421,7 +421,13 @@
             pathBox.innerHTML += `<div class="btn-opt" onclick="sel(this,'path','${p}'); ${click}">${p}</div>`;
         });
         document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
-
+        // [부모님 의견]
+        const agreeBox = document.getElementById('agree-opts');
+        if(agreeBox) {
+            agreeBox.innerHTML = PARENT_OPINION.map(o => 
+                `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden'); else document.getElementById('agreeEtc').classList.add('hidden')">${o}</div>`
+            ).join('');
+        }
         // [가족/경제]
         document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
         document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
@@ -688,8 +694,45 @@
         document.getElementById('admin-list').classList.add('hidden');
         document.getElementById('report-area').classList.remove('hidden');
         document.getElementById('report-area').innerHTML = `<div style="padding:20px; border:2px solid #333;"><h2>결과</h2><pre>${JSON.stringify(d, null, 2)}</pre></div><button class="no-print btn-opt" onclick="location.reload()">닫기</button>`;
+    },
+    // [2P] 학교 선택 시 학년 노출
+    function selSchool(el, type, maxGrade) {
+        sel(el, 'schLvl', type); // 값 저장 및 스타일 적용
+        
+        const gBox = document.getElementById('grade-box');
+        const sBox = document.getElementById('semester-box');
+        
+        // 초기화
+        gBox.classList.add('hidden');
+        sBox.classList.add('hidden');
+        document.getElementById('grade-opts').innerHTML = "";
+
+        // 미진학이면 종료
+        if (maxGrade === 0) return;
+
+        // 학년 버튼 생성 및 노출
+        gBox.classList.remove('hidden');
+        let html = "";
+        for(let i=1; i<=maxGrade; i++) {
+            html += `<div class="btn-opt" onclick="selGrade(this, '${i}학년')">${i}학년</div>`;
+        }
+        document.getElementById('grade-opts').innerHTML = html;
+    }
+
+    // [2P] 학년 선택 시 학기 노출
+    function selGrade(el, val) {
+        sel(el, 'grade', val); // 값 저장
+        document.getElementById('semester-box').classList.remove('hidden'); // 학기 박스 보이기
+    }
+
+    // [2P] 날짜 글자수 제한 (4자리, 2자리)
+    function sliceLen(el, max) {
+        if(el.value.length > max) {
+            el.value = el.value.slice(0, max);
+        }
     }
 </script>
 </body>
 </html>
+
 
