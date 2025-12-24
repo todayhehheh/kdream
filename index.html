@@ -12,55 +12,83 @@
     
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #00BFA5; --bg: #F5F7FA; --card: #FFFFFF; --text: #333; }
+        :root { --primary: #00BFA5; --bg: #F5F7FA; --white: #fff; --text: #333; --border: #DDD; }
         
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
-        /* 상단바 */
-        .header { position: fixed; top: 0; left: 0; width: 100%; height: 50px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; z-index: 1000; font-weight: 800; color: var(--primary); }
-        .progress-bar { position: fixed; top: 50px; left: 0; height: 4px; background: var(--primary); width: 0%; z-index: 1000; transition: width 0.3s; }
+        /* 헤더 & 진행바 */
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 55px; background: white; z-index: 999; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .progress-bar { position: fixed; top: 55px; left: 0; height: 4px; background: var(--primary); width: 0%; z-index: 999; transition: width 0.3s; }
 
         .container { max-width: 720px; margin: 80px auto 0; padding: 20px; }
+        
+        /* 페이지 전환 애니메이션 */
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 카드 스타일 */
         .card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        h2 { font-size: 1.3rem; margin-top: 0; margin-bottom: 20px; color: #111; border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; }
         
-        .form-group { margin-bottom: 25px; }
-        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+        h2 { font-size: 1.3rem; margin: 0 0 20px 0; border-bottom: 2px solid var(--primary); padding-bottom: 8px; display: inline-block; color: #222; }
+        h3 { font-size: 1.1rem; color: #444; background: #f0f0f0; padding: 10px 15px; border-radius: 8px; margin: 30px 0 15px 0; font-weight: 700; }
+
+        /* 입력 폼 */
+        .form-group { margin-bottom: 30px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; color: #333; }
+        .sub-desc { font-weight: normal; font-size: 0.85rem; color: #888; margin-left: 5px; }
         
-        input, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 1.05rem; box-sizing: border-box; background: #fff; text-align: center; }
+        input[type="text"], input[type="tel"], input[type="date"], select {
+            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; text-align: center; transition: 0.2s;
+        }
+        input.text-left { text-align: left; }
         input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
         
         /* 버튼 그룹 */
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .btn-opt { 
-            flex: 1; min-width: 100px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; 
-            background: #fff; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center;
+            flex: 1; min-width: 100px; padding: 13px; border: 1px solid #ddd; border-radius: 10px; 
+            background: #fff; text-align: center; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: 0.1s;
         }
-        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-opt:active { transform: scale(0.98); }
+        .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 800; }
+
+        /* 5점 척도 전용 (한 줄 배치) */
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+        .grid-5 .btn-opt { min-width: 0; padding: 12px 2px; font-size: 0.9rem; }
+
+        /* 척도 검사 문항 */
+        .scale-row { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #eee; }
+        .scale-q { font-weight: bold; margin-bottom: 10px; line-height: 1.4; word-break: keep-all; }
+        .scale-btns { display: flex; gap: 4px; }
+        .scale-btn { 
+            flex: 1; padding: 10px 0; border: 1px solid #ddd; border-radius: 8px; background: white; 
+            text-align: center; cursor: pointer; font-size: 0.8rem; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .scale-btn span.num { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 2px; }
+        .scale-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .scale-btn.selected span.num { color: white; }
+
+        /* 가족 테이블 */
+        .fam-row { display: grid; grid-template-columns: 0.7fr 1fr 0.5fr 1.2fr 0.6fr; gap: 5px; margin-bottom: 5px; }
+        .fam-row input, .fam-row select { padding: 10px 5px; font-size: 0.9rem; }
 
         /* 하단바 */
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; box-sizing: border-box; z-index: 1000; }
-        .btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
+        .btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
         .btn-prev { background: #f0f0f0; color: #555; flex: 0.4; }
         .btn-next { background: var(--primary); color: white; flex: 1; }
 
         .hidden { display: none !important; }
         .split { display: flex; gap: 5px; align-items: center; }
         .split input { flex: 1; }
-        .fam-row { display: grid; grid-template-columns: 0.6fr 0.8fr 0.5fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
-        .fam-row input, .fam-row select { padding: 8px; font-size: 0.9rem; }
-        
-        /* 척도 1줄 강제 */
-        .scale-row { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .scale-btns { display: flex; gap: 4px; justify-content: space-between; }
-        .scale-btn { flex: 1; padding: 10px 0; border: 1px solid #ddd; border-radius: 8px; background: white; text-align: center; cursor: pointer; font-size: 0.8rem; }
-        .scale-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        @media print { .no-print { display: none; } }
+        @media print {
+            .no-print, .header, .progress-bar, .bottom-bar { display: none !important; }
+            #report-area { display: block !important; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+        }
     </style>
 </head>
 <body>
@@ -70,12 +98,13 @@
 
 <div id="intro-page" class="container text-center" style="margin-top:100px;">
     <div class="card">
-        <h1 style="color:var(--primary); margin-bottom:10px;">희망 서비스 조사표</h1>
+        <h1 style="color:var(--primary); margin-bottom:15px;">희망 서비스 조사표</h1>
         <p style="color:#666; line-height:1.6; margin-bottom:40px;">
             안녕하세요.<br>꿈드림 센터에 오신 것을 환영합니다.<br>
-            <strong>솔직하게</strong> 작성해 주세요.
+            여러분을 돕기 위한 소중한 자료입니다.<br>
+            <strong>솔직하게</strong> 작성해 주시면 감사하겠습니다.
         </p>
-        <button class="btn btn-next" style="width:100%;" onclick="startSurvey()">시작하기</button>
+        <button class="btn btn-next" style="width:100%;" onclick="startSurvey()">작성 시작하기</button>
     </div>
 </div>
 
@@ -91,24 +120,24 @@
                     <div class="btn-opt" onclick="sel(this,'gender','여')">여자</div>
                 </div>
             </div>
-            <div class="form-group"><label>주민번호 (생년월일 자동)</label>
+            <div class="form-group"><label>주민등록번호 <span class="sub-desc">(생년월일 자동계산)</span></label>
                 <div class="split">
-                    <input type="tel" id="rrn1" maxlength="6" placeholder="앞자리" oninput="autoBirth(this)"> - <input type="password" id="rrn2" maxlength="7" placeholder="뒷자리">
+                    <input type="tel" id="rrn1" maxlength="6" placeholder="앞 6자리" oninput="autoBirth(this)"> - <input type="password" id="rrn2" maxlength="7" placeholder="뒤 7자리">
                 </div>
-                <div id="birthDisplay" style="margin-top:5px; color:var(--primary); font-weight:bold;"></div>
+                <div id="birthDisplay" style="margin-top:5px; color:var(--primary); font-weight:bold; font-size:0.9rem;"></div>
             </div>
             <div class="form-group"><label>주소</label>
                 <div class="split" style="margin-bottom:5px;">
                     <input type="text" id="postcode" placeholder="우편번호" readonly style="flex:0.4;">
-                    <button class="btn-opt" style="flex:0.3; padding:10px;" onclick="execPostcode()">검색</button>
+                    <button class="btn-opt" style="flex:0.3; padding:10px; min-width:auto;" onclick="execPostcode()">검색</button>
                 </div>
                 <input type="text" id="address" placeholder="기본 주소" readonly style="margin-bottom:5px;">
-                <input type="text" id="detailAddr" placeholder="상세 주소">
+                <input type="text" id="detailAddr" placeholder="상세 주소 입력">
             </div>
-            <div class="form-group"><label>본인 연락처</label>
+            <div class="form-group"><label>연락처 (본인)</label>
                 <div class="split"><input type="tel" id="t1" maxlength="3"><input type="tel" id="t2" maxlength="4"><input type="tel" id="t3" maxlength="4"></div>
             </div>
-            <div class="form-group"><label>보호자 연락처</label>
+            <div class="form-group"><label>연락처 (보호자)</label>
                 <div class="split"><input type="tel" id="p1" maxlength="3"><input type="tel" id="p2" maxlength="4"><input type="tel" id="p3" maxlength="4"></div>
             </div>
             <div class="form-group"><label>청소년 상태</label>
@@ -132,31 +161,26 @@
                     <div class="btn-opt" onclick="sel(this,'schLvl','미진학'); showGr(0);">미진학</div>
                 </div>
             </div>
-            <div id="grade-wrap" class="hidden" style="margin-bottom:20px; background:#f9f9f9; padding:15px; border-radius:10px;">
-                <label>학년/학기</label>
+            <div id="grade-wrap" class="hidden" style="margin-top:10px; background:#f9f9f9; padding:15px; border-radius:10px;">
+                <label>학년 / 학기</label>
                 <div id="grade-opts" class="btn-group" style="margin-bottom:10px;"></div>
-                <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'sem','1학기')">1학기</div>
-                    <div class="btn-opt" onclick="sel(this,'sem','2학기')">2학기</div>
-                </div>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'sem','1학기')">1학기</div><div class="btn-opt" onclick="sel(this,'sem','2학기')">2학기</div></div>
             </div>
-            <div class="form-group"><label>2. 언제 학교를 그만두었습니까?</label>
-                <div class="split">
-                    <input type="tel" id="dY" placeholder="년(4자리)"><span>년</span>
-                    <input type="tel" id="dM" placeholder="월"><span>월</span>
-                    <input type="tel" id="dD" placeholder="일"><span>일</span>
-                </div>
+            
+            <div class="form-group" style="margin-top:25px;"><label>2. 언제 그만두었습니까?</label>
+                <div class="split"><input type="tel" id="dY" placeholder="년(4자리)"><span>년</span><input type="tel" id="dM" placeholder="월"><span>월</span><input type="tel" id="dD" placeholder="일"><span>일</span></div>
             </div>
-            <div class="form-group"><label>3. 학교를 그만두게 된 이유는 무엇입니까? (1순위)</label>
-                <select id="reason1" onchange="updReason()"><option value="">선택 (필수)</option></select>
+
+            <div class="form-group"><label>3. 학교를 그만두게 된 이유는? (1순위)</label>
+                <select id="reason1" onchange="updR()"><option value="">선택 (필수)</option></select>
             </div>
-            <div class="form-group"><label>2순위 (선택)</label><select id="reason2" onchange="updReason()"></select></div>
+            <div class="form-group"><label>2순위 (선택)</label><select id="reason2" onchange="updR()"></select></div>
             <div class="form-group"><label>3순위 (선택)</label><select id="reason3"></select></div>
-            <input type="text" id="reasonEtc" class="hidden" placeholder="기타 사유 입력" style="width:100%; margin-top:5px;">
+            <input type="text" id="reasonEtc" class="hidden text-left" placeholder="기타 사유를 입력하세요" style="width:100%; margin-top:5px;">
 
             <div class="form-group" style="margin-top:25px;"><label>4. 그만두는 것에 대한 부모님 의견은?</label>
-                <div class="btn-group" id="agree-opts"></div>
-                <input type="text" id="agreeEtc" class="hidden" placeholder="기타 의견" style="width:100%; margin-top:5px;">
+                <div id="agree-opts" class="btn-group"></div>
+                <input type="text" id="agreeEtc" class="hidden text-left" placeholder="기타 의견" style="width:100%; margin-top:5px;">
             </div>
         </div>
     </div>
@@ -166,7 +190,7 @@
             <h2>3. 방문 경로</h2>
             <div class="form-group"><label>5. 꿈드림 센터를 방문하게 된 경로는?</label>
                 <div id="path-opts" class="btn-group" style="flex-direction:column;"></div>
-                <input type="text" id="pathEtc" class="hidden" placeholder="기타 경로 입력" style="width:100%; margin-top:5px;">
+                <input type="text" id="pathEtc" class="hidden text-left" placeholder="기타 경로" style="width:100%; margin-top:5px;">
             </div>
             <div id="org-wrap" class="hidden" style="margin-top:20px; border-top:1px dashed #ddd; padding-top:20px;">
                 <label>어떤 기관인가요?</label>
@@ -178,141 +202,156 @@
     <div id="page-4" class="page">
         <div class="card">
             <h2>4. 가족 및 경제 상황</h2>
-            <div class="form-group"><label>1. 나의 가정은 어떻게 구성되어 있습니까? (5줄)</label>
+            <div class="form-group">
+                <label>1. 가족 구성원 <span class="sub-desc">(동거 여부 O/X)</span></label>
                 <div class="fam-row" style="font-weight:bold; color:#666; text-align:center;"><span>관계</span><span>성명</span><span>나이</span><span>연락처</span><span>동거</span></div>
-                <div id="fam-inputs"></div>
+                <div id="fam-rows"></div>
+                <button type="button" class="btn-opt" style="width:100%; margin-top:5px; background:#f0f0f0;" onclick="addFamRow()">+ 가족 추가</button>
             </div>
-            <div class="form-group"><label>1-2. 현재 가족형태</label><div id="fam-type-opts" class="btn-group"></div></div>
-            <div class="form-group"><label>1-3. 가정의 경제상태</label><div id="econ-opts" class="btn-group"></div></div>
-            <div class="form-group"><label>2. 가정에서 물질적 지원을 어느 정도 받고 있습니까?</label>
-                <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'money','매우충분')">매우 충분</div>
-                    <div class="btn-opt" onclick="sel(this,'money','충분')">충분</div>
-                    <div class="btn-opt" onclick="sel(this,'money','보통')">보통</div>
-                    <div class="btn-opt" onclick="sel(this,'money','부족')">부족</div>
-                    <div class="btn-opt" onclick="sel(this,'money','매우부족')">매우 부족</div>
-                </div>
-                <div id="lack-opts" class="hidden" style="margin-top:10px; background:#f9f9f9; padding:10px; border-radius:10px;">
-                    <label style="font-size:0.9rem;">2-1. 부족한 경우 어떻게 충당합니까?</label>
-                    <div class="btn-group">
-                        <div class="btn-opt" onclick="sel(this,'how','알바')">일(알바)</div>
-                        <div class="btn-opt" onclick="sel(this,'how','지원금')">국가 지원금</div>
-                        <div class="btn-opt" onclick="sel(this,'how','아껴씀')">아껴씀</div>
-                    </div>
-                </div>
+            
+            <div class="form-group"><label>1-1. 현재 가정상태 (중복가능)</label><div id="fam-bg-opts" class="btn-group"></div></div>
+            <div class="form-group"><label>1-2. 현재 가족형태</label><div id="fam-type-opts" class="btn-group"></div><input type="text" id="famEtc" class="hidden text-left" placeholder="기타"></div>
+            <div class="form-group"><label>1-3. 경제상태</label><div id="econ-opts" class="btn-group"></div></div>
+            
+            <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
+
+            <div class="form-group"><label>2. 가정의 물질적 지원 정도</label>
+                <div class="grid-5" id="support-opts"></div>
+                <input type="text" id="supEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
             </div>
-            <div class="form-group"><label>2-2. 한 달 생활비용(용돈)은 얼마나 쓰고 있습니까?</label>
-                <div class="btn-group">
-                    <div class="btn-opt" onclick="sel(this,'pocket','없음')">없음</div>
-                    <div class="btn-opt" onclick="sel(this,'pocket','10미만')">10만원 미만</div>
-                    <div class="btn-opt" onclick="sel(this,'pocket','10~20')">10~20만원</div>
-                    <div class="btn-opt" onclick="sel(this,'pocket','21~30')">21~30만원</div>
-                    <div class="btn-opt" onclick="sel(this,'pocket','30이상')">30만원 이상</div>
-                </div>
+            <div id="lack-box" class="hidden" style="margin-bottom:25px; background:#f9f9f9; padding:15px; border-radius:10px;">
+                <label style="font-size:0.9rem; margin-bottom:10px;">2-1. 부족한 경우 어떻게 충당합니까?</label>
+                <div id="lack-opts" class="btn-group" style="flex-direction:column;"></div>
+                <input type="text" id="lackEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
             </div>
+            <div class="form-group"><label>2-2. 한 달 용돈 (생활비용)</label><div class="grid-5" id="money-opts"></div></div>
         </div>
     </div>
 
     <div id="page-5" class="page">
         <div class="card">
             <h2>5. 관계 및 어려움</h2>
-            <div class="form-group"><label>3. 가정에서는 얼마나 본인에게 관심을 가지고 존중합니까?</label>
-                <div id="respect-opts" class="btn-group"></div>
-                <input type="text" id="respectEtc" class="hidden" placeholder="기타 내용" style="width:100%; margin-top:5px;">
+            <div class="form-group"><label>3. 가정 내 존중 정도</label>
+                <div class="grid-5" id="respect-opts"></div>
+                <input type="text" id="resEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
             </div>
-            <div class="form-group"><label>4. 문제나 고민이 있을 때 누구와 주로 얘기합니까?</label>
+            <div class="form-group"><label>4. 고민 상담 대상</label>
                 <div id="talk-opts" class="btn-group"></div>
-                <input type="text" id="talkEtc" class="hidden" placeholder="기타 내용" style="width:100%; margin-top:5px;">
+                <input type="text" id="talkEtc" class="hidden text-left" placeholder="기타" style="width:100%; margin-top:5px;">
             </div>
+            
             <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
+            
             <div class="form-group">
-                <label>1. 현재 겪고 있는 어려움은 무엇입니까? (모두 선택)</label>
+                <label>1. 현재 겪고 있는 어려움 (모두 선택)</label>
                 <div id="diff-opts"></div>
-                <input type="text" id="diffEtc" class="hidden" placeholder="기타 어려움" style="width:100%; margin-top:5px;">
+                <input type="text" id="diffEtc" class="hidden text-left" placeholder="기타 어려움" style="width:100%; margin-top:5px;">
             </div>
         </div>
     </div>
 
     <div id="page-6" class="page">
         <div class="card">
-            <h2>6. 서비스 욕구 및 생활</h2>
-            <div class="form-group"><label>4. 학교 중단 후 계획 (1, 2, 3순위)</label>
-                <div style="margin-bottom:5px;">1순위: <select id="goal1" onchange="updGoal()"><option value="">선택</option></select></div>
-                <div style="margin-bottom:5px;">2순위: <select id="goal2" onchange="updGoal()"><option value="">선택</option></select></div>
-                <div style="margin-bottom:5px;">3순위: <select id="goal3"></select></div>
-                <input type="text" id="goalEtc" class="hidden" placeholder="기타 계획 입력" style="width:100%; margin-top:5px;">
+            <h2>6. 목표 및 희망 서비스</h2>
+            <div class="form-group"><label>4. 학교 중단 후 계획 (순위)</label>
+                <div style="margin-bottom:8px;">1순위: <select id="g1" onchange="updG()"><option value="">선택</option></select></div>
+                <div style="margin-bottom:8px;">2순위: <select id="g2" onchange="updG()"></select></div>
+                <div style="margin-bottom:8px;">3순위: <select id="g3"></select></div>
+                <input type="text" id="gEtc" class="hidden text-left" placeholder="기타 계획">
             </div>
             <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
             <div class="form-group"><label>희망 서비스 (모두 선택)</label><div id="service-opts"></div></div>
-            
-            <hr style="margin:30px 0; border:0; border-top:1px dashed #ddd;">
-            <h3>과거 학교 생활</h3>
-            <div class="form-group"><label>1. 도움을 주는 선생님이 계셨습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'tHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'tHelp','아니오')">아니오</div></div>
-            </div>
-            <div class="form-group"><label>2. 마음을 터놓는 친구가 있었습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'fHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'fHelp','아니오')">아니오</div></div>
-            </div>
-            <div class="form-group"><label>3. 흥미를 갖고 참여한 활동이 있었습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'act','예'); document.getElementById('act-box').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'act','아니오'); document.getElementById('act-box').classList.add('hidden')">아니오</div></div>
-                <input type="text" id="act-box" class="hidden" placeholder="무엇이었습니까? (예: 밴드부)" style="width:100%; margin-top:5px;">
-            </div>
-
-            <h3>건강</h3>
-            <div class="form-group"><label>1. 최근 2년 내 건강검진을 받았습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'checkup','예'); document.getElementById('h1-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'checkup','아니오'); document.getElementById('h1-1').classList.add('hidden')">아니오</div></div>
-            </div>
-            <div id="h1-1" class="hidden" style="margin-left:10px; border-left:3px solid #eee; padding-left:10px;">
-                <label>1-1. 발견된 건강 문제가 있습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'hProb','예'); document.getElementById('h1-2').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'hProb','아니오'); document.getElementById('h1-2').classList.add('hidden')">아니오</div></div>
-                <input type="text" id="h1-2" class="hidden" placeholder="1-2. 병명이나 증상은?" style="width:100%; margin-top:5px;">
-            </div>
-
-            <div class="form-group" style="margin-top:20px;"><label>2. 정기적으로 병원 방문/약 복용 중입니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'medi','예'); document.getElementById('h2-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'medi','아니오'); document.getElementById('h2-1').classList.add('hidden')">아니오</div></div>
-                <input type="text" id="h2-1" class="hidden" placeholder="2-1. 병명이나 증상은?" style="width:100%; margin-top:5px;">
-            </div>
-
-            <div class="form-group"><label>3. 과거 장기입원(1개월 이상) 경험이 있습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'hosp','예'); document.getElementById('h3-box').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'hosp','아니오'); document.getElementById('h3-box').classList.add('hidden')">아니오</div></div>
-            </div>
-            <div id="h3-box" class="hidden" style="margin-left:10px; border-left:3px solid #eee; padding-left:10px;">
-                <input type="text" id="h3-1" placeholder="3-1. 병명 또는 증상" style="width:100%; margin-bottom:5px;">
-                <label>3-2. 입원 기간은?</label>
-                <div id="hosp-opts" class="btn-group"></div>
-            </div>
         </div>
     </div>
 
     <div id="page-7" class="page">
         <div class="card">
-            <h2>7. 자립역량 척도</h2>
-            <div id="jarip-area"></div>
+            <h2>7. 과거 학교생활 및 건강</h2>
+            
+            <h3>과거 학교 생활</h3>
+            <div class="form-group"><label>1. 도움 주는 선생님이 계셨습니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'tHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'tHelp','아니오')">아니오</div></div>
+            </div>
+            <div class="form-group"><label>2. 터놓고 얘기할 친구가 있었습니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'fHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'fHelp','아니오')">아니오</div></div>
+            </div>
+            <div class="form-group"><label>3. 흥미를 갖고 참여한 활동이 있었습니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'act','예'); document.getElementById('act-txt').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'act','아니오'); document.getElementById('act-txt').classList.add('hidden')">아니오</div></div>
+                <input type="text" id="act-txt" class="hidden text-left" placeholder="3-1. 무엇이었습니까? (예: 밴드부)" style="width:100%; margin-top:5px;">
+            </div>
+
+            <h3>건강 상태</h3>
+            <div class="form-group"><label>1. 최근 2년 내 건강검진을 받았습니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'chk','예'); document.getElementById('h1-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'chk','아니오'); document.getElementById('h1-1').classList.add('hidden')">아니오</div></div>
+            </div>
+            <div id="h1-1" class="hidden" style="margin-left:15px; border-left:3px solid #eee; padding-left:10px; margin-bottom:20px;">
+                <label style="font-size:0.95rem;">1-1. 발견된 건강 문제가 있습니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'prob','예'); document.getElementById('h1-2').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'prob','아니오'); document.getElementById('h1-2').classList.add('hidden')">아니오</div></div>
+                <input type="text" id="h1-2" class="hidden text-left" placeholder="1-2. 진단명이나 증상은?" style="width:100%; margin-top:5px;">
+            </div>
+
+            <div class="form-group"><label>2. 정기적 병원 방문/약 복용 중입니까?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'med','예'); document.getElementById('h2-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'med','아니오'); document.getElementById('h2-1').classList.add('hidden')">아니오</div></div>
+                <input type="text" id="h2-1" class="hidden text-left" placeholder="2-1. 진단명이나 증상은?" style="width:100%; margin-top:5px;">
+            </div>
+
+            <div class="form-group"><label>3. 과거 장기입원(1개월 이상) 경험?</label>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'hosp','예'); document.getElementById('h3-box').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'hosp','아니오'); document.getElementById('h3-box').classList.add('hidden')">아니오</div></div>
+            </div>
+            <div id="h3-box" class="hidden" style="margin-left:15px; border-left:3px solid #eee; padding-left:10px;">
+                <input type="text" id="h3-1" class="text-left" placeholder="3-1. 병명 또는 증상" style="width:100%; margin-bottom:10px;">
+                <label style="font-size:0.95rem;">3-2. 입원 기간은?</label>
+                <div id="hosp-time" class="btn-group"></div>
+            </div>
         </div>
     </div>
 
     <div id="page-8" class="page">
         <div class="card">
-            <h2>8. 심리정서 척도</h2>
+            <h2>8. 자립역량 척도</h2>
+            <p style="color:#666; margin-bottom:20px;">※ 각 문항을 읽고 자신에게 해당되는 정도를 체크해주세요.</p>
+            <div id="jarip-area"></div>
+        </div>
+    </div>
+
+    <div id="page-9" class="page">
+        <div class="card">
+            <h2>9. 심리정서 척도</h2>
+            <p style="color:#666; margin-bottom:20px;">※ 솔직한 답변이 큰 도움이 됩니다.</p>
             <div id="simni-area"></div>
         </div>
     </div>
 
-    <div id="page-end" class="page text-center" style="margin-top:100px;">
-        <h1>수고하셨습니다!</h1>
-        <p>모든 작성이 완료되었습니다.</p>
-        <button class="btn btn-prev" style="margin-top:30px;" onclick="location.reload()">처음으로</button>
+    <div id="page-end" class="page text-center" style="margin-top:120px;">
+        <div style="font-size:4rem;">🎉</div>
+        <h1 style="color:var(--primary); margin-top:10px;">작성 완료!</h1>
+        <p style="font-size:1.1rem; color:#555; margin:30px 0;">긴 시간 동안 수고 많으셨습니다.<br>상담 선생님께 태블릿을 전달해 주세요.</p>
+        <button class="btn btn-prev" style="margin-top:40px; padding:15px 40px; width:auto;" onclick="location.reload()">처음으로 돌아가기</button>
     </div>
 
 </div>
 
 <div class="bottom-bar no-print" id="bottom-bar">
     <button class="btn btn-prev" onclick="move(-1)">이전</button>
-    <button class="btn btn-next" onclick="move(1)" id="btn-next">다음</button>
+    <button class="btn btn-next" id="nextBtn" onclick="move(1)">다음</button>
 </div>
 
 <div id="admin-view" class="container hidden no-print">
+    <div class="card">
+        <h2>🔒 관리자</h2>
+        <input type="password" id="adminPw" placeholder="비밀번호 1388">
+        <button class="btn btn-next" style="width:100%; margin-top:10px;" onclick="loginAdmin()">확인</button>
+        <button class="btn btn-prev" style="width:100%; margin-top:10px;" onclick="location.reload()">나가기</button>
     </div>
+</div>
+<div id="admin-list" class="container hidden no-print">
+    <div class="card">
+        <h2>📋 참여자 목록</h2>
+        <ul id="list-area" style="list-style:none; padding:0;"></ul>
+        <button class="btn btn-prev" style="width:100%;" onclick="location.reload()">나가기</button>
+    </div>
+</div>
+<div id="report-area" class="hidden"></div>
 
 <script>
     // [1] Firebase 설정
@@ -326,82 +365,82 @@
     };
     try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); } catch(e){}
 
-    let curr = 0;
-    const max = 8;
+    let curr = 1;
+    const max = 9;
     let data = {};
     let answers = {};
-    let userType = "YOUTH";
+    let userType = "YOUTH"; // 나이에 따라 변경됨
 
     window.onload = () => {
-        // 옵션 렌더링
-        initReasons();
-        initPath();
-        initFam();
-        initOpts();
+        initAll();
+        addFamRow(2); // 초기 가족 2줄
     };
 
-    function initReasons() {
-        ['reason1','reason2','reason3'].forEach(id => {
-            const el = document.getElementById(id);
-            el.add(new Option("선택", ""));
-            REASON_OPTIONS.forEach(r => el.add(new Option(r, r)));
+    function initAll() {
+        // [중단사유]
+        const r1 = document.getElementById('reason1');
+        const r2 = document.getElementById('reason2');
+        const r3 = document.getElementById('reason3');
+        REASON_OPTIONS.forEach(r => {
+            r1.add(new Option(r, r)); r2.add(new Option(r, r)); r3.add(new Option(r, r));
         });
-        
-        ['goal1','goal2','goal3'].forEach(id => {
-            const el = document.getElementById(id);
-            el.add(new Option("선택", ""));
-            GOAL_OPTIONS.forEach(r => el.add(new Option(r, r)));
-        });
-    }
 
-    function initPath() {
-        const d = document.getElementById('path-opts');
+        // [방문경로]
+        const pathBox = document.getElementById('path-opts');
         VISIT_PATHS.forEach(p => {
             let click = p.includes("기관") ? `document.getElementById('org-wrap').classList.remove('hidden')` : `document.getElementById('org-wrap').classList.add('hidden')`;
             if(p.includes("기타")) click = `document.getElementById('pathEtc').classList.toggle('hidden')`;
-            d.innerHTML += `<div class="btn-opt" onclick="sel(this,'path','${p}'); ${click}">${p}</div>`;
+            pathBox.innerHTML += `<div class="btn-opt" onclick="sel(this,'path','${p}'); ${click}">${p}</div>`;
         });
         document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
-    }
 
-    function initFam() {
-        const d = document.getElementById('fam-inputs');
-        for(let i=1; i<=5; i++) d.innerHTML += `<div class="fam-row"><input type="text" id="fr${i}"><input type="text" id="fn${i}"><input type="tel" id="fa${i}"><input type="tel" id="ft${i}"><select id="fl${i}"><option>O</option><option>X</option></select></div>`;
-        
-        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}')">${t}</div>`).join('');
+        // [가족/경제]
+        document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
+        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
         document.getElementById('econ-opts').innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
-        document.getElementById('agree-opts').innerHTML = PARENT_OPINION.map(o => `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden')">${o}</div>`).join('');
-    }
+        document.getElementById('support-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'support','${o}'); if('${o}'.includes('부족')) document.getElementById('lack-box').classList.remove('hidden'); else document.getElementById('lack-box').classList.add('hidden'); if('${o}'.includes('기타')) document.getElementById('supEtc').classList.remove('hidden')">${o}</div>`).join('');
+        document.getElementById('lack-opts').innerHTML = MONEY_LACK_SOLUTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'lackSol','${o}'); if('${o}'.includes('기타')) document.getElementById('lackEtc').classList.remove('hidden')">${o}</div>`).join('');
+        document.getElementById('money-opts').innerHTML = POCKET_MONEY_RANGE.map(o => `<div class="btn-opt" onclick="sel(this,'pocket','${o}')">${o}</div>`).join('');
 
-    function initOpts() {
-        // 존중/고민
-        document.getElementById('respect-opts').innerHTML = FAMILY_RESPECT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('respectEtc').classList.remove('hidden')">${o}</div>`).join('');
+        // [관계/어려움]
+        document.getElementById('respect-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('resEtc').classList.remove('hidden')">${o}</div>`).join('');
         document.getElementById('talk-opts').innerHTML = CONFIDANT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'talk','${o}'); if('${o}'.includes('기타')) document.getElementById('talkEtc').classList.remove('hidden')">${o}</div>`).join('');
+        document.getElementById('agree-opts').innerHTML = PARENT_OPINION.map(o => `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden')">${o}</div>`).join('');
         
-        // 입원기간
-        document.getElementById('hosp-opts').innerHTML = HOSPITAL_DURATION.map(o => `<div class="btn-opt" onclick="sel(this,'hDuration','${o}')">${o}</div>`).join('');
-
-        // 어려움
         const diff = document.getElementById('diff-opts');
         for(let k in DIFFICULTY_GROUPS) {
             diff.innerHTML += `<h3>${k}</h3><div class="btn-group">` + 
-                DIFFICULTY_GROUPS[k].map(i => `<div class="btn-opt" onclick="toggle(this,'diff','${i}'); if('${i}'=='기타') document.getElementById('diffEtc').classList.remove('hidden')">${i}</div>`).join('') + `</div>`;
+                DIFFICULTY_GROUPS[k].map(i => `<div class="btn-opt" onclick="toggle(this,'diff','${i}'); if('${i}'.includes('기타')) document.getElementById('diffEtc').classList.remove('hidden')">${i}</div>`).join('') + `</div>`;
         }
-        // 서비스
+
+        // [목표/서비스]
+        ['g1','g2','g3'].forEach(id => {
+            const el = document.getElementById(id);
+            el.add(new Option("선택", ""));
+            GOAL_OPTIONS.forEach(g => el.add(new Option(g, g)));
+        });
         const serv = document.getElementById('service-opts');
         for(let k in SERVICE_GROUPS) {
             serv.innerHTML += `<h3>${k}</h3><div class="btn-group">` + 
                 SERVICE_GROUPS[k].map(i => `<div class="btn-opt" onclick="toggle(this,'serv','${i}')">${i}</div>`).join('') + `</div>`;
         }
+
+        // [건강]
+        document.getElementById('hosp-time').innerHTML = HOSP_DURATION.map(o => `<div class="btn-opt" onclick="sel(this,'hDur','${o}')">${o}</div>`).join('');
     }
 
-    // 로직
+    function addFamRow(cnt = 1) {
+        const d = document.getElementById('fam-inputs');
+        for(let i=0; i<cnt; i++) {
+            d.insertAdjacentHTML('beforeend', `<div class="fam-row"><input type="text" class="fr"><input type="text" class="fn"><input type="tel" class="fa"><input type="tel" class="ft"><select class="fl"><option>O</option><option>X</option></select></div>`);
+        }
+    }
+
+    // 선택 로직
     function sel(el, key, val) {
         data[key] = val;
         Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
-        if(key==='money' && (val.includes('부족'))) document.getElementById('lack-opts').classList.remove('hidden');
-        else if(key==='money') document.getElementById('lack-opts').classList.add('hidden');
     }
 
     function toggle(el, key, val) {
@@ -411,30 +450,31 @@
         else data[key] = data[key].filter(v => v !== val);
     }
 
-    function updReason() {
-        const r1 = document.getElementById('reason1').value;
-        const r2 = document.getElementById('reason2');
-        const r3 = document.getElementById('reason3');
+    // 중단 이유 중복 방지
+    function updR() {
+        const v1 = document.getElementById('reason1').value;
+        const v2 = document.getElementById('reason2');
+        const v3 = document.getElementById('reason3');
         const etc = document.getElementById('reasonEtc');
         
-        if(r1.includes("기타") || r2.value.includes("기타") || r3.value.includes("기타")) etc.classList.remove('hidden');
+        if(v1.includes("기타") || v2.value.includes("기타") || v3.value.includes("기타")) etc.classList.remove('hidden');
         else etc.classList.add('hidden');
         
-        Array.from(r2.options).forEach(o => o.disabled = (o.value && o.value === r1));
-        Array.from(r3.options).forEach(o => o.disabled = (o.value && (o.value === r1 || o.value === r2.value)));
+        Array.from(v2.options).forEach(o => o.disabled = (o.value && o.value === v1));
+        Array.from(v3.options).forEach(o => o.disabled = (o.value && (o.value === v1 || o.value === v2.value)));
     }
 
-    function updGoal() {
-        const g1 = document.getElementById('goal1').value;
-        const g2 = document.getElementById('goal2');
-        const g3 = document.getElementById('goal3');
-        const etc = document.getElementById('goalEtc');
+    function updG() {
+        const v1 = document.getElementById('g1').value;
+        const v2 = document.getElementById('g2');
+        const v3 = document.getElementById('g3');
+        const etc = document.getElementById('gEtc');
 
-        if(g1.includes("기타") || g2.value.includes("기타") || g3.value.includes("기타")) etc.classList.remove('hidden');
+        if(v1.includes("기타") || v2.value.includes("기타") || v3.value.includes("기타")) etc.classList.remove('hidden');
         else etc.classList.add('hidden');
 
-        Array.from(g2.options).forEach(o => o.disabled = (o.value && o.value === g1));
-        Array.from(g3.options).forEach(o => o.disabled = (o.value && (o.value === g1 || o.value === g2.value)));
+        Array.from(v2.options).forEach(o => o.disabled = (o.value && o.value === v1));
+        Array.from(v3.options).forEach(o => o.disabled = (o.value && (o.value === v1 || o.value === v2.value)));
     }
 
     function showGr(n) {
@@ -447,21 +487,44 @@
         for(let i=1; i<=n; i++) opts.innerHTML += `<div class="btn-opt" onclick="sel(this,'grade','${i}학년')">${i}학년</div>`;
     }
 
-    // 척도 로드
+    // 페이지 이동
+    function move(dir) {
+        document.getElementById(`page-${curr}`).classList.remove('active');
+        curr += dir;
+        
+        if(curr < 1) curr = 1;
+        
+        // 척도 데이터 로드 시점
+        if(curr === 8) loadScale('jarip');
+        if(curr === 9) loadScale('simni');
+        if(curr > max) { submit(); return; }
+
+        document.getElementById(`page-${curr}`).classList.add('active');
+        document.getElementById('progressBar').style.width = (curr/max*100) + "%";
+        document.getElementById('nextBtn').innerText = (curr === max) ? "제출하기" : "다음";
+        window.scrollTo(0,0);
+    }
+
+    // 척도 렌더링
     function loadScale(part) {
+        // 나이 계산 (YOUTH/CHILD)
+        const y2 = document.getElementById('rrn1').value.substr(0,2);
+        const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
+        userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
+
         const list = SCALE_DATA[userType][part];
         const div = document.getElementById(part+'-area');
         div.innerHTML = "";
         list.forEach((q, i) => {
             div.innerHTML += `
                 <div class="scale-row">
-                    <div style="font-weight:bold; margin-bottom:10px;">${i+1}. ${q.t}</div>
+                    <div class="scale-q">${i+1}. ${q.t}</div>
                     <div class="scale-btns">
-                        <div class="scale-btn" onclick="ans('${part}',${q.n},1,this,${q.rev},${q.crit},'${q.d}')">전혀아님</div>
-                        <div class="scale-btn" onclick="ans('${part}',${q.n},2,this,${q.rev},${q.crit},'${q.d}')">아니다</div>
-                        <div class="scale-btn" onclick="ans('${part}',${q.n},3,this,${q.rev},${q.crit},'${q.d}')">보통</div>
-                        <div class="scale-btn" onclick="ans('${part}',${q.n},4,this,${q.rev},${q.crit},'${q.d}')">그렇다</div>
-                        <div class="scale-btn" onclick="ans('${part}',${q.n},5,this,${q.rev},${q.crit},'${q.d}')">매우그렇다</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},1,this,${q.rev},${q.crit},'${q.d}')"><span class="num">1</span>전혀아님</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},2,this,${q.rev},${q.crit},'${q.d}')"><span class="num">2</span>아니다</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},3,this,${q.rev},${q.crit},'${q.d}')"><span class="num">3</span>보통</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},4,this,${q.rev},${q.crit},'${q.d}')"><span class="num">4</span>그렇다</div>
+                        <div class="scale-btn" onclick="ans('${part}',${q.n},5,this,${q.rev},${q.crit},'${q.d}')"><span class="num">5</span>매우그렇다</div>
                     </div>
                 </div>`;
         });
@@ -471,66 +534,6 @@
         answers[`${part}_${n}`] = {val:v, rev:r, crit:c, domain:d};
         Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
-    }
-
-    function startSurvey() {
-        document.getElementById('intro-page').classList.add('hidden');
-        document.getElementById('survey-wrap').classList.remove('hidden');
-        document.getElementById('bottom-bar').classList.remove('hidden');
-        move(1);
-    }
-
-    function move(dir) {
-        if(curr > 0) document.getElementById(`page-${curr}`).classList.remove('active');
-        curr += dir;
-        
-        if(curr < 1) curr = 1;
-        if(curr === 7) initScale('jarip');
-        if(curr === 8) initScale('simni');
-        if(curr > max) { submit(); return; }
-
-        document.getElementById(`page-${curr}`).classList.add('active');
-        document.getElementById('btn-next').innerText = (curr === max) ? "제출하기" : "다음";
-        document.getElementById('progressBar').style.width = (curr/max*100) + "%";
-        window.scrollTo(0,0);
-    }
-
-    function initScale(part) {
-        // 나이 계산
-        const y2 = document.getElementById('rrn1').value.substr(0,2);
-        const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
-        userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
-        loadScale(part);
-    }
-
-    function submit() {
-        if(!confirm("제출하시겠습니까?")) { curr--; document.getElementById(`page-${curr}`).classList.add('active'); return; }
-        
-        // 데이터 수집
-        data.name = document.getElementById('userName').value;
-        data.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
-        data.addr = document.getElementById('address').value + " " + document.getElementById('detailAddr').value;
-        data.tel = document.getElementById('t1').value + "-" + document.getElementById('t2').value + "-" + document.getElementById('t3').value;
-        data.ptel = document.getElementById('p1').value + "-" + document.getElementById('p2').value + "-" + document.getElementById('p3').value;
-        data.dropDate = `${document.getElementById('dY').value}.${document.getElementById('dM').value}.${document.getElementById('dD').value}`;
-        data.goals = [document.getElementById('goal1').value, document.getElementById('goal2').value, document.getElementById('goal3').value].filter(Boolean).join(", ");
-        
-        data.healthCheck = [document.getElementById('h1-2').value, document.getElementById('h2-1').value, document.getElementById('h3-1').value].filter(Boolean).join(" / ");
-
-        const payload = { info: data, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
-        
-        if(db) {
-            db.collection("intake_complete").add(payload).then(() => showEnd());
-        } else {
-            alert("DB 미연결 (테스트 완료)");
-            showEnd();
-        }
-    }
-
-    function showEnd() {
-        document.getElementById('survey-wrap').classList.add('hidden');
-        document.getElementById('bottom-bar').classList.add('hidden');
-        document.getElementById('page-end').classList.remove('hidden');
     }
 
     function autoBirth(el) {
@@ -551,9 +554,92 @@
         }).open();
     }
 
+    function submit() {
+        if(!confirm("제출하시겠습니까?")) { curr--; document.getElementById(`page-${curr}`).classList.add('active'); return; }
+        
+        // 데이터 수집 (입력창 값들)
+        data.name = document.getElementById('userName').value;
+        data.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
+        data.addr = document.getElementById('address').value + " " + document.getElementById('detailAddr').value;
+        data.tel = `${document.getElementById('t1').value}-${document.getElementById('t2').value}-${document.getElementById('t3').value}`;
+        data.ptel = `${document.getElementById('p1').value}-${document.getElementById('p2').value}-${document.getElementById('p3').value}`;
+        data.dropDate = `${document.getElementById('dY').value}.${document.getElementById('dM').value}.${document.getElementById('dD').value}`;
+        
+        data.goals = [document.getElementById('g1').value, document.getElementById('g2').value, document.getElementById('g3').value].filter(Boolean).join(", ");
+        data.reasons = [document.getElementById('reason1').value, document.getElementById('reason2').value, document.getElementById('reason3').value].filter(Boolean).join(", ");
+        if(document.getElementById('reasonEtc').value) data.reasons += ` (${document.getElementById('reasonEtc').value})`;
+
+        // 가족
+        let fam = [];
+        document.querySelectorAll('.fam-row').forEach((r, i) => {
+            if(i===0) return;
+            const inputs = r.querySelectorAll('input, select');
+            if(inputs[1].value) fam.push(`${inputs[0].value}/${inputs[1].value}/${inputs[2].value}`);
+        });
+        data.family = fam.join(", ");
+
+        // 건강 텍스트
+        data.hCheck = [document.getElementById('h1-2').value, document.getElementById('h2-1').value, document.getElementById('h3-1').value].filter(Boolean).join(" / ");
+        data.actTxt = document.getElementById('act-txt').value;
+
+        // 기타 텍스트 병합
+        if(document.getElementById('agreeEtc').value) data.agree += `(${document.getElementById('agreeEtc').value})`;
+        if(document.getElementById('pathEtc').value) data.path += `(${document.getElementById('pathEtc').value})`;
+        if(document.getElementById('famEtc').value) data.famType += `(${document.getElementById('famEtc').value})`;
+        if(document.getElementById('supEtc').value) data.support += `(${document.getElementById('supEtc').value})`;
+        if(document.getElementById('lackEtc').value) data.lackSol += `(${document.getElementById('lackEtc').value})`;
+        if(document.getElementById('resEtc').value) data.respect += `(${document.getElementById('resEtc').value})`;
+        if(document.getElementById('talkEtc').value) data.talk += `(${document.getElementById('talkEtc').value})`;
+        if(document.getElementById('diffEtc').value) data.diff += `(${document.getElementById('diffEtc').value})`;
+        if(document.getElementById('gEtc').value) data.goals += `(${document.getElementById('gEtc').value})`;
+
+        const payload = { info: data, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
+        
+        if(db) {
+            db.collection("intake_complete").add(payload).then(() => showEnd());
+        } else {
+            alert("DB 미연결 (테스트 완료)");
+            showEnd();
+        }
+    }
+
+    function showEnd() {
+        document.getElementById('survey-wrap').classList.add('hidden');
+        document.getElementById('bottom-bar').classList.add('hidden');
+        document.getElementById('page-end').classList.remove('hidden');
+    }
+
     function showAdmin() {
         document.getElementById('intro-page').classList.add('hidden');
         document.getElementById('admin-view').classList.remove('hidden');
+    }
+    
+    function loginAdmin() {
+        if(document.getElementById('adminPw').value === "1388") {
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('admin-list').classList.remove('hidden');
+            loadList();
+        } else alert("비밀번호 오류");
+    }
+
+    function loadList() {
+        const ul = document.getElementById('list-area');
+        ul.innerHTML = "로딩중...";
+        db.collection("intake_complete").orderBy("ts", "desc").limit(10).get().then(snap => {
+            ul.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                ul.innerHTML += `<li class="card" style="padding:15px; display:flex; justify-content:space-between;">
+                    <b>${d.info.name}</b> <button class="btn-opt" style="width:auto; min-width:60px;" onclick='viewRpt(${JSON.stringify(d)})'>보기</button>
+                </li>`;
+            });
+        });
+    }
+
+    function viewRpt(d) {
+        document.getElementById('admin-list').classList.add('hidden');
+        document.getElementById('report-area').classList.remove('hidden');
+        document.getElementById('report-area').innerHTML = `<div style="padding:20px; border:2px solid #333;"><h2>결과</h2><pre>${JSON.stringify(d, null, 2)}</pre></div><button class="no-print btn-opt" onclick="location.reload()">닫기</button>`;
     }
 </script>
 </body>
