@@ -22,9 +22,9 @@
 
         .container { max-width: 720px; margin: 80px auto 0; padding: 20px; }
         
-        /* 화면 전환 */
-        .screen { display: none; animation: fadeIn 0.4s ease; }
-        .screen.active { display: block; }
+        /* 페이지 애니메이션 */
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* 카드 스타일 */
@@ -33,14 +33,11 @@
         h2 { font-size: 1.3rem; margin: 0 0 20px 0; border-bottom: 2px solid var(--primary); padding-bottom: 8px; display: inline-block; color: #222; }
         h3 { font-size: 1.1rem; color: #444; background: #f0f0f0; padding: 10px 15px; border-radius: 8px; margin: 30px 0 15px 0; font-weight: 700; }
 
-        /* 입력 폼 */
         .form-group { margin-bottom: 30px; }
         label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; color: #333; }
         .sub-desc { font-weight: normal; font-size: 0.85rem; color: #888; margin-left: 5px; }
         
-        input[type="text"], input[type="tel"], input[type="date"], input[type="password"], select {
-            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; text-align: center; transition: 0.2s;
-        }
+        input, select { width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; text-align: center; transition: 0.2s; }
         input.text-left { text-align: left; }
         input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); }
         
@@ -53,7 +50,7 @@
         .btn-opt:active { transform: scale(0.98); }
         .btn-opt.selected { background: #E0F2F1; border-color: var(--primary); color: #00897B; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 800; }
 
-        /* 5점 척도 전용 (한 줄 배치) */
+        /* 5점 척도 전용 */
         .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
         .grid-5 .btn-opt { min-width: 0; padding: 12px 2px; font-size: 0.9rem; }
 
@@ -69,28 +66,26 @@
         .scale-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
         .scale-btn.selected span.num { color: white; }
 
-        /* 가족 테이블 */
+        /* 테이블형 입력 */
         .fam-row { display: grid; grid-template-columns: 0.7fr 1fr 0.5fr 1.2fr 0.6fr; gap: 5px; margin-bottom: 5px; }
         .fam-row input, .fam-row select { padding: 10px 5px; font-size: 0.9rem; }
 
-        /* 하단바 (기본 숨김) */
+        /* 하단바 */
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; box-sizing: border-box; z-index: 1000; }
         .btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
         .btn-prev { background: #f0f0f0; color: #555; flex: 0.4; }
         .btn-next { background: var(--primary); color: white; flex: 1; }
 
         .hidden { display: none !important; }
-        
-        /* 분할 입력 (생년월일, 주민번호 등) - 크기 동일하게 강제 */
-        .split { display: flex; gap: 8px; align-items: center; }
+        .split { display: flex; gap: 5px; align-items: center; }
         .split input { flex: 1; min-width: 0; }
 
-        @media print {
-            .no-print, .header, .progress-bar, .bottom-bar { display: none !important; }
-            #report-area { display: block !important; }
-            body { background: white; padding: 0; }
-            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
-        }
+        /* 리뷰 페이지 스타일 */
+        .review-section { margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
+        .review-title { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .review-content { font-size: 0.95rem; color: #555; line-height: 1.5; white-space: pre-wrap; }
+
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
@@ -98,7 +93,7 @@
 <div class="header no-print">노원구 꿈드림 <span style="position:absolute; right:20px; font-size:0.8rem; color:#ccc; cursor:pointer;" onclick="showAdmin()">🔒</span></div>
 <div class="progress-bar no-print" id="progressBar"></div>
 
-<div id="intro-page" class="container screen active text-center" style="margin-top:120px;">
+<div id="intro-page" class="container page active text-center" style="margin-top:120px;">
     <div class="card">
         <h1 style="color:var(--primary); margin-bottom:15px;">희망 서비스 조사표</h1>
         <p style="color:#666; line-height:1.6; margin-bottom:40px;">
@@ -113,7 +108,7 @@
 
 <div id="survey-wrap" class="container hidden">
 
-    <div id="page-1" class="screen">
+    <div id="page-1" class="page">
         <div class="card">
             <h2>1. 기본 인적사항</h2>
             <div class="form-group"><label>성명</label><input type="text" id="userName"></div>
@@ -153,7 +148,7 @@
         </div>
     </div>
 
-    <div id="page-2" class="screen">
+    <div id="page-2" class="page">
         <div class="card">
             <h2>2. 학업 중단 및 배경</h2>
             <div class="form-group"><label>1. 언제까지 학교에 다녔습니까?</label>
@@ -188,7 +183,7 @@
         </div>
     </div>
 
-    <div id="page-3" class="screen">
+    <div id="page-3" class="page">
         <div class="card">
             <h2>3. 방문 경로</h2>
             <div class="form-group"><label>5. 꿈드림 센터를 방문하게 된 경로는?</label>
@@ -202,7 +197,7 @@
         </div>
     </div>
 
-    <div id="page-4" class="screen">
+    <div id="page-4" class="page">
         <div class="card">
             <h2>4. 가족 및 경제 상황</h2>
             <div class="form-group">
@@ -231,7 +226,7 @@
         </div>
     </div>
 
-    <div id="page-5" class="screen">
+    <div id="page-5" class="page">
         <div class="card">
             <h2>5. 관계 및 어려움</h2>
             <div class="form-group"><label>3. 가정 내 존중 정도</label>
@@ -253,7 +248,7 @@
         </div>
     </div>
 
-    <div id="page-6" class="screen">
+    <div id="page-6" class="page">
         <div class="card">
             <h2>6. 목표 및 희망 서비스</h2>
             <div class="form-group"><label>4. 학교 중단 후 계획 (순위)</label>
@@ -267,41 +262,41 @@
         </div>
     </div>
 
-    <div id="page-7" class="screen">
+    <div id="page-7" class="page">
         <div class="card">
             <h2>7. 과거 학교생활 및 건강</h2>
             
             <h3>과거 학교 생활</h3>
-            <div class="form-group"><label>1. 도움 주는 선생님이 계셨습니까?</label>
+            <div class="form-group"><label>1. 학교에서 어려울 때 도움 주는 선생님이 계셨습니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'tHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'tHelp','아니오')">아니오</div></div>
             </div>
-            <div class="form-group"><label>2. 터놓고 얘기할 친구가 있었습니까?</label>
+            <div class="form-group"><label>2. 힘들 때 마음을 터놓고 이야기할 친구가 있었습니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'fHelp','예')">예</div><div class="btn-opt" onclick="sel(this,'fHelp','아니오')">아니오</div></div>
             </div>
-            <div class="form-group"><label>3. 흥미를 갖고 참여한 활동이 있었습니까?</label>
+            <div class="form-group"><label>3. 흥미를 갖고 참여한 학교 안/밖 활동이 있었습니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'act','예'); document.getElementById('act-txt').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'act','아니오'); document.getElementById('act-txt').classList.add('hidden')">아니오</div></div>
                 <input type="text" id="act-txt" class="hidden text-left" placeholder="3-1. 무엇이었습니까? (예: 밴드부)" style="width:100%; margin-top:5px;">
             </div>
 
             <h3>건강 상태</h3>
             <div class="form-group"><label>1. 최근 2년 내 건강검진을 받았습니까?</label>
-                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'chk','예'); document.getElementById('h1-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'chk','아니오'); document.getElementById('h1-1').classList.add('hidden')">아니오</div></div>
+                <div class="btn-group"><div class="btn-opt" onclick="sel(this,'chk','예'); document.getElementById('h1-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'chk','아니오'); document.getElementById('h1-1').classList.add('hidden'); document.getElementById('h1-2').classList.add('hidden')">아니오</div></div>
             </div>
-            <div id="h1-1" class="hidden" style="margin-left:15px; border-left:3px solid #eee; padding-left:10px; margin-bottom:20px;">
-                <label style="font-size:0.95rem;">1-1. 발견된 건강 문제가 있습니까?</label>
+            <div id="h1-1" class="hidden" style="margin-left:10px; border-left:3px solid #eee; padding-left:10px; margin-bottom:20px;">
+                <label style="font-size:0.95rem;">1-1. 검진을 통해 발견된 건강 문제가 있습니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'prob','예'); document.getElementById('h1-2').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'prob','아니오'); document.getElementById('h1-2').classList.add('hidden')">아니오</div></div>
                 <input type="text" id="h1-2" class="hidden text-left" placeholder="1-2. 진단명이나 증상은?" style="width:100%; margin-top:5px;">
             </div>
 
-            <div class="form-group"><label>2. 정기적 병원 방문/약 복용 중입니까?</label>
+            <div class="form-group"><label>2. 정기적으로 병원 방문/약 복용 중입니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'med','예'); document.getElementById('h2-1').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'med','아니오'); document.getElementById('h2-1').classList.add('hidden')">아니오</div></div>
                 <input type="text" id="h2-1" class="hidden text-left" placeholder="2-1. 진단명이나 증상은?" style="width:100%; margin-top:5px;">
             </div>
 
-            <div class="form-group"><label>3. 과거 장기입원(1개월 이상) 경험?</label>
+            <div class="form-group"><label>3. 과거 장기입원(1개월 이상) 경험이 있습니까?</label>
                 <div class="btn-group"><div class="btn-opt" onclick="sel(this,'hosp','예'); document.getElementById('h3-box').classList.remove('hidden')">예</div><div class="btn-opt" onclick="sel(this,'hosp','아니오'); document.getElementById('h3-box').classList.add('hidden')">아니오</div></div>
             </div>
-            <div id="h3-box" class="hidden" style="margin-left:15px; border-left:3px solid #eee; padding-left:10px;">
+            <div id="h3-box" class="hidden" style="margin-left:10px; border-left:3px solid #eee; padding-left:10px;">
                 <input type="text" id="h3-1" class="text-left" placeholder="3-1. 병명 또는 증상" style="width:100%; margin-bottom:10px;">
                 <label style="font-size:0.95rem;">3-2. 입원 기간은?</label>
                 <div id="hosp-time" class="btn-group"></div>
@@ -309,7 +304,7 @@
         </div>
     </div>
 
-    <div id="page-8" class="screen">
+    <div id="page-8" class="page">
         <div class="card">
             <h2>8. 자립역량 척도</h2>
             <p style="color:#666; margin-bottom:20px;">※ 각 문항을 읽고 자신에게 해당되는 정도를 체크해주세요.</p>
@@ -317,7 +312,7 @@
         </div>
     </div>
 
-    <div id="page-9" class="screen">
+    <div id="page-9" class="page">
         <div class="card">
             <h2>9. 심리정서 척도</h2>
             <p style="color:#666; margin-bottom:20px;">※ 솔직한 답변이 큰 도움이 됩니다.</p>
@@ -325,7 +320,15 @@
         </div>
     </div>
 
-    <div id="page-end" class="screen text-center" style="margin-top:120px;">
+    <div id="page-10" class="page">
+        <div class="card">
+            <h2>작성 내용 확인</h2>
+            <p style="color:#666; margin-bottom:20px;">제출하기 전에 작성한 내용을 확인해 주세요.</p>
+            <div id="review-content" style="white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; background: #f9f9f9; padding: 15px; border-radius: 10px;"></div>
+        </div>
+    </div>
+
+    <div id="page-end" class="page text-center" style="margin-top:120px;">
         <div style="font-size:4rem;">🎉</div>
         <h1 style="color:var(--primary); margin-top:10px;">작성 완료!</h1>
         <p style="font-size:1.1rem; color:#555; margin:30px 0;">긴 시간 동안 수고 많으셨습니다.<br>상담 선생님께 태블릿을 전달해 주세요.</p>
@@ -369,25 +372,24 @@
     try { firebase.initializeApp(firebaseConfig); var db = firebase.firestore(); } catch(e){}
 
     let curr = 1;
-    const max = 9;
+    const max = 10; // 9(척도) + 1(리뷰)
     let data = {};
     let answers = {};
-    let userType = "YOUTH"; // 나이에 따라 변경됨
+    let userType = "YOUTH"; 
 
     window.onload = () => {
         initAll();
-        addFamRow(2); // 초기 가족 2줄
+        addFamRow(2); // 초기 2줄
     };
 
     function initAll() {
         // [중단사유]
-        const r1 = document.getElementById('reason1');
-        const r2 = document.getElementById('reason2');
-        const r3 = document.getElementById('reason3');
-        REASON_OPTIONS.forEach(r => {
-            r1.add(new Option(r, r)); r2.add(new Option(r, r)); r3.add(new Option(r, r));
+        ['reason1','reason2','reason3'].forEach(id => {
+            const el = document.getElementById(id);
+            el.add(new Option("선택", ""));
+            REASON_OPTIONS.forEach(r => el.add(new Option(r, r)));
         });
-
+        
         // [방문경로]
         const pathBox = document.getElementById('path-opts');
         VISIT_PATHS.forEach(p => {
@@ -435,14 +437,13 @@
     function addFamRow(cnt = 1) {
         const container = document.getElementById('fam-rows');
         const current = container.getElementsByClassName('fam-row').length;
-        if(current + cnt > 5) return alert("최대 5명까지입니다.");
+        if(current + cnt > 6) return alert("최대 5명까지입니다."); // header 제외
         
         for(let i=0; i<cnt; i++) {
             container.insertAdjacentHTML('beforeend', `<div class="fam-row"><input type="text" class="fr"><input type="text" class="fn"><input type="tel" class="fa"><input type="tel" class="ft"><select class="fl"><option>O</option><option>X</option></select></div>`);
         }
     }
 
-    // 선택 로직
     function sel(el, key, val) {
         data[key] = val;
         Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
@@ -456,7 +457,6 @@
         else data[key] = data[key].filter(v => v !== val);
     }
 
-    // 중단 이유 중복 방지
     function updR() {
         const v1 = document.getElementById('reason1').value;
         const v2 = document.getElementById('reason2');
@@ -493,10 +493,9 @@
         for(let i=1; i<=n; i++) opts.innerHTML += `<div class="btn-opt" onclick="sel(this,'grade','${i}학년')">${i}학년</div>`;
     }
 
-    // 페이지 이동
     function move(dir) {
         // 인트로 화면 처리
-        if(dir === 1 && document.getElementById('intro-page').classList.contains('active')) return; // startSurvey로만 이동
+        if(document.getElementById('intro-page').classList.contains('active')) return;
 
         // 1페이지에서 이전 -> 인트로
         if(curr === 1 && dir === -1) {
@@ -510,20 +509,29 @@
         document.getElementById(`page-${curr}`).classList.remove('active');
         curr += dir;
         
-        // 척도 데이터 로드 시점
+        if(curr < 1) curr = 1;
+        
+        // 척도 데이터 로드
         if(curr === 8) loadScale('jarip');
         if(curr === 9) loadScale('simni');
+        
+        // 리뷰 페이지
+        if(curr === 10) showReview();
+
         if(curr > max) { submit(); return; }
 
         document.getElementById(`page-${curr}`).classList.add('active');
         document.getElementById('progressBar').style.width = (curr/max*100) + "%";
-        document.getElementById('nextBtn').innerText = (curr === max) ? "제출하기" : "다음";
+        
+        // 버튼 텍스트 변경
+        const nextBtn = document.getElementById('nextBtn');
+        if(curr === max) nextBtn.innerText = "제출하기";
+        else nextBtn.innerText = "다음";
+        
         window.scrollTo(0,0);
     }
 
-    // 척도 렌더링
     function loadScale(part) {
-        // 나이 계산 (YOUTH/CHILD)
         const y2 = document.getElementById('rrn1').value.substr(0,2);
         const y = parseInt(y2) < 30 ? 2000+parseInt(y2) : 1900+parseInt(y2);
         userType = (new Date().getFullYear() - y >= 13) ? "YOUTH" : "CHILD";
@@ -582,45 +590,34 @@
         }).open();
     }
 
-    function submit() {
-        if(!confirm("제출하시겠습니까?")) { curr--; document.getElementById(`page-${curr}`).classList.add('active'); return; }
-        
-        // 데이터 수집 (입력창 값들)
+    function showReview() {
+        // 데이터 수집
+        collectData();
+        const div = document.getElementById('review-content');
+        div.innerHTML = `
+            <div class="review-section"><div class="review-title">기본 정보</div>이름: ${data.name}<br>연락처: ${data.tel}</div>
+            <div class="review-section"><div class="review-title">학업 중단</div>${data.dropDate} 중단 (${data.reasons})</div>
+            <div class="review-section"><div class="review-title">진로/목표</div>${data.goals}</div>
+            <div class="review-section"><div class="review-title">희망 서비스</div>${data.serv ? data.serv.join(", ") : "-"}</div>
+        `;
+    }
+
+    function collectData() {
         data.name = document.getElementById('userName').value;
         data.rrn = document.getElementById('rrn1').value + "-" + document.getElementById('rrn2').value;
         data.addr = document.getElementById('address').value + " " + document.getElementById('detailAddr').value;
         data.tel = `${document.getElementById('t1').value}-${document.getElementById('t2').value}-${document.getElementById('t3').value}`;
         data.ptel = `${document.getElementById('p1').value}-${document.getElementById('p2').value}-${document.getElementById('p3').value}`;
         data.dropDate = `${document.getElementById('dY').value}.${document.getElementById('dM').value}.${document.getElementById('dD').value}`;
-        
         data.goals = [document.getElementById('g1').value, document.getElementById('g2').value, document.getElementById('g3').value].filter(Boolean).join(", ");
         data.reasons = [document.getElementById('reason1').value, document.getElementById('reason2').value, document.getElementById('reason3').value].filter(Boolean).join(", ");
         if(document.getElementById('reasonEtc').value) data.reasons += ` (${document.getElementById('reasonEtc').value})`;
+    }
 
-        // 가족
-        let fam = [];
-        document.querySelectorAll('.fam-row').forEach((r, i) => {
-            if(i===0) return;
-            const inputs = r.querySelectorAll('input, select');
-            if(inputs[1].value) fam.push(`${inputs[0].value}/${inputs[1].value}/${inputs[2].value}`);
-        });
-        data.family = fam.join(", ");
-
-        // 건강 텍스트
-        data.hCheck = [document.getElementById('h1-2').value, document.getElementById('h2-1').value, document.getElementById('h3-1').value].filter(Boolean).join(" / ");
-        data.actTxt = document.getElementById('act-txt').value;
-
-        // 기타 텍스트 병합
-        if(document.getElementById('agreeEtc').value) data.agree += `(${document.getElementById('agreeEtc').value})`;
-        if(document.getElementById('pathEtc').value) data.path += `(${document.getElementById('pathEtc').value})`;
-        if(document.getElementById('famEtc').value) data.famType += `(${document.getElementById('famEtc').value})`;
-        if(document.getElementById('supEtc').value) data.support += `(${document.getElementById('supEtc').value})`;
-        if(document.getElementById('lackEtc').value) data.lackSol += `(${document.getElementById('lackEtc').value})`;
-        if(document.getElementById('resEtc').value) data.respect += `(${document.getElementById('resEtc').value})`;
-        if(document.getElementById('talkEtc').value) data.talk += `(${document.getElementById('talkEtc').value})`;
-        if(document.getElementById('diffEtc').value) data.diff += `(${document.getElementById('diffEtc').value})`;
-        if(document.getElementById('gEtc').value) data.goals += `(${document.getElementById('gEtc').value})`;
-
+    function submit() {
+        if(!confirm("제출하시겠습니까?")) { curr--; document.getElementById(`page-${curr}`).classList.add('active'); return; }
+        
+        collectData();
         const payload = { info: data, ans: answers, ts: firebase.firestore.FieldValue.serverTimestamp() };
         
         if(db) {
