@@ -14,17 +14,17 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --primary: #00BFA5; --bg: #F5F7FA; --white: #fff; --text: #333; --border: #DDD; }
         
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        /* 헤더 & 진행바 */
+        /* 상단바 */
         .header { position: fixed; top: 0; left: 0; width: 100%; height: 55px; background: white; z-index: 999; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .progress-bar { position: fixed; top: 55px; left: 0; height: 4px; background: var(--primary); width: 0%; z-index: 999; transition: width 0.3s; }
 
         .container { max-width: 720px; margin: 80px auto 0; padding: 20px; }
         
-        /* 페이지 전환 애니메이션 */
-        .page { display: none; animation: fadeIn 0.4s ease; }
-        .page.active { display: block; }
+        /* 화면 전환 */
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* 카드 스타일 */
@@ -73,7 +73,7 @@
         .fam-row { display: grid; grid-template-columns: 0.7fr 1fr 0.5fr 1.2fr 0.6fr; gap: 5px; margin-bottom: 5px; }
         .fam-row input, .fam-row select { padding: 10px 5px; font-size: 0.9rem; }
 
-        /* 하단바 */
+        /* 하단바 (기본 숨김) */
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; box-sizing: border-box; z-index: 1000; }
         .btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 800; cursor: pointer; }
         .btn-prev { background: #f0f0f0; color: #555; flex: 0.4; }
@@ -96,7 +96,7 @@
 <div class="header no-print">노원구 꿈드림 <span style="position:absolute; right:20px; font-size:0.8rem; color:#ccc; cursor:pointer;" onclick="showAdmin()">🔒</span></div>
 <div class="progress-bar no-print" id="progressBar"></div>
 
-<div id="intro-page" class="container text-center" style="margin-top:100px;">
+<div id="intro-page" class="container screen active text-center" style="margin-top:120px;">
     <div class="card">
         <h1 style="color:var(--primary); margin-bottom:15px;">희망 서비스 조사표</h1>
         <p style="color:#666; line-height:1.6; margin-bottom:40px;">
@@ -105,12 +105,13 @@
             <strong>솔직하게</strong> 작성해 주시면 감사하겠습니다.
         </p>
         <button class="btn btn-next" style="width:100%;" onclick="startSurvey()">작성 시작하기</button>
+        <p style="margin-top:20px; color:#ccc; font-size:0.9rem; cursor:pointer;" onclick="showAdmin()">관리자 접속</p>
     </div>
 </div>
 
 <div id="survey-wrap" class="container hidden">
 
-    <div id="page-1" class="page active">
+    <div id="page-1" class="screen">
         <div class="card">
             <h2>1. 기본 인적사항</h2>
             <div class="form-group"><label>성명</label><input type="text" id="userName"></div>
@@ -150,7 +151,7 @@
         </div>
     </div>
 
-    <div id="page-2" class="page">
+    <div id="page-2" class="screen">
         <div class="card">
             <h2>2. 학업 중단 및 배경</h2>
             <div class="form-group"><label>1. 언제까지 학교에 다녔습니까?</label>
@@ -185,7 +186,7 @@
         </div>
     </div>
 
-    <div id="page-3" class="page">
+    <div id="page-3" class="screen">
         <div class="card">
             <h2>3. 방문 경로</h2>
             <div class="form-group"><label>5. 꿈드림 센터를 방문하게 된 경로는?</label>
@@ -199,7 +200,7 @@
         </div>
     </div>
 
-    <div id="page-4" class="page">
+    <div id="page-4" class="screen">
         <div class="card">
             <h2>4. 가족 및 경제 상황</h2>
             <div class="form-group">
@@ -228,7 +229,7 @@
         </div>
     </div>
 
-    <div id="page-5" class="page">
+    <div id="page-5" class="screen">
         <div class="card">
             <h2>5. 관계 및 어려움</h2>
             <div class="form-group"><label>3. 가정 내 존중 정도</label>
@@ -250,7 +251,7 @@
         </div>
     </div>
 
-    <div id="page-6" class="page">
+    <div id="page-6" class="screen">
         <div class="card">
             <h2>6. 목표 및 희망 서비스</h2>
             <div class="form-group"><label>4. 학교 중단 후 계획 (순위)</label>
@@ -264,7 +265,7 @@
         </div>
     </div>
 
-    <div id="page-7" class="page">
+    <div id="page-7" class="screen">
         <div class="card">
             <h2>7. 과거 학교생활 및 건강</h2>
             
@@ -306,7 +307,7 @@
         </div>
     </div>
 
-    <div id="page-8" class="page">
+    <div id="page-8" class="screen">
         <div class="card">
             <h2>8. 자립역량 척도</h2>
             <p style="color:#666; margin-bottom:20px;">※ 각 문항을 읽고 자신에게 해당되는 정도를 체크해주세요.</p>
@@ -314,7 +315,7 @@
         </div>
     </div>
 
-    <div id="page-9" class="page">
+    <div id="page-9" class="screen">
         <div class="card">
             <h2>9. 심리정서 척도</h2>
             <p style="color:#666; margin-bottom:20px;">※ 솔직한 답변이 큰 도움이 됩니다.</p>
@@ -322,7 +323,7 @@
         </div>
     </div>
 
-    <div id="page-end" class="page text-center" style="margin-top:120px;">
+    <div id="page-end" class="screen text-center" style="margin-top:120px;">
         <div style="font-size:4rem;">🎉</div>
         <h1 style="color:var(--primary); margin-top:10px;">작성 완료!</h1>
         <p style="font-size:1.1rem; color:#555; margin:30px 0;">긴 시간 동안 수고 많으셨습니다.<br>상담 선생님께 태블릿을 전달해 주세요.</p>
@@ -331,7 +332,7 @@
 
 </div>
 
-<div class="bottom-bar no-print" id="bottom-bar">
+<div class="bottom-bar hidden no-print" id="bottom-bar">
     <button class="btn btn-prev" onclick="move(-1)">이전</button>
     <button class="btn btn-next" id="nextBtn" onclick="move(1)">다음</button>
 </div>
@@ -534,6 +535,18 @@
         answers[`${part}_${n}`] = {val:v, rev:r, crit:c, domain:d};
         Array.from(el.parentElement.children).forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
+    }
+
+    function startSurvey() {
+        document.getElementById('intro-page').classList.add('hidden');
+        document.getElementById('survey-wrap').classList.remove('hidden');
+        document.getElementById('bottom-bar').classList.remove('hidden');
+        move(1); // 1부터 시작 (curr는 전역변수)
+        
+        // 페이지가 1로 초기화되는 것을 확실히 하기 위해
+        curr = 1;
+        document.getElementById(`page-1`).classList.add('active');
+        document.getElementById('progressBar').style.width = (1/max*100) + "%";
     }
 
     function autoBirth(el) {
