@@ -433,6 +433,13 @@
         // [관계/어려움]
         document.getElementById('respect-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('resEtc').classList.remove('hidden')">${o}</div>`).join('');
         document.getElementById('talk-opts').innerHTML = CONFIDANT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'talk','${o}'); if('${o}'.includes('기타')) document.getElementById('talkEtc').classList.remove('hidden')">${o}</div>`).join('');
+
+// ▼▼▼ [누락된 부분 추가] 부모님 의견 버튼 생성 코드 ▼▼▼
+        const agreeBox = document.getElementById('agree-opts');
+        if (agreeBox) {
+            agreeBox.innerHTML = PARENT_OPINION.map(o => 
+                `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden'); else document.getElementById('agreeEtc').classList.add('hidden')">${o}</div>`
+            ).join('');
         
         // [부모님의견] - 이곳에 명시적으로 추가
         const agreeBox = document.getElementById('agree-opts');
@@ -736,3 +743,4 @@
 </script>
 </body>
 </html>
+
