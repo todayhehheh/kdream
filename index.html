@@ -415,18 +415,16 @@
     };
 
 function initAll() {
-        // [1] 부모님 의견 (데이터 직접 정의하여 강제 출력)
-        // scales.js에서 못 불러올 경우를 대비해 여기에 직접 넣었습니다.
+        // [1] 부모님 의견 (직접 정의)
         const parentOpts = ["① 일치(찬성)", "② 일치(반대)", "③ 불일치", "④ 무관심", "⑤ 기타"];
         const agreeBox = document.getElementById('agree-opts');
-        
         if (agreeBox) {
             agreeBox.innerHTML = parentOpts.map(o => 
                 `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden'); else document.getElementById('agreeEtc').classList.add('hidden')">${o}</div>`
             ).join('');
         }
 
-        // [2] 중단 사유 (scales.js 사용)
+        // [2] 중단 사유
         const r1 = document.getElementById('reason1');
         const r2 = document.getElementById('reason2');
         const r3 = document.getElementById('reason3');
@@ -449,12 +447,12 @@ function initAll() {
             document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
         }
 
-     // [가족/경제] 파트 (기존 코드 덮어쓰기)
-        document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
-        document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
-        document.getElementById('econ-opts').innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
+        // [4] 가족/경제
+        if(typeof FAMILY_BG_OPTIONS !== 'undefined') document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
+        if(typeof FAMILY_TYPE_OPTIONS !== 'undefined') document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
+        if(typeof ECON_STATUS_OPTIONS !== 'undefined') document.getElementById('econ-opts').innerHTML = ECON_STATUS_OPTIONS.map(e => `<div class="btn-opt" onclick="sel(this,'econ','${e}')">${e}</div>`).join('');
         
-        // 2. 물질적 지원 (직접 정의하여 강제 출력)
+        // 2. 물질적 지원 (직접 정의)
         const supportData = ["① 매우 충분", "② 충분", "③ 보통", "④ 부족", "⑤ 매우 부족", "⑥ 기타"];
         document.getElementById('support-opts').innerHTML = supportData.map(o => 
             `<div class="btn-opt" onclick="sel(this,'support','${o}'); chkLack('${o}')">${o}</div>`
@@ -472,26 +470,13 @@ function initAll() {
             `<div class="btn-opt" onclick="sel(this,'pocket','${o}')">${o}</div>`
         ).join('');
 
-        // [5] 나머지 옵션들 (안전장치 추가)
-        if(document.getElementById('support-opts') && typeof LEVEL_5_SCALE !== 'undefined') {
-            document.getElementById('support-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'support','${o}'); if('${o}'.includes('부족')) document.getElementById('lack-box').classList.remove('hidden'); else document.getElementById('lack-box').classList.add('hidden'); if('${o}'.includes('기타')) document.getElementById('supEtc').classList.remove('hidden')">${o}</div>`).join('');
-        }
-        
-        if(document.getElementById('lack-opts') && typeof MONEY_LACK_SOLUTIONS !== 'undefined') {
-            document.getElementById('lack-opts').innerHTML = MONEY_LACK_SOLUTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'lackSol','${o}'); if('${o}'.includes('기타')) document.getElementById('lackEtc').classList.remove('hidden')">${o}</div>`).join('');
-        }
-        
-        if(document.getElementById('money-opts') && typeof POCKET_MONEY_RANGE !== 'undefined') {
-            document.getElementById('money-opts').innerHTML = POCKET_MONEY_RANGE.map(o => `<div class="btn-opt" onclick="sel(this,'pocket','${o}')">${o}</div>`).join('');
-        }
+        // [5] 관계/어려움 (직접 정의로 강제 출력)
+        const respectData = ["① 매우 충분", "② 충분", "③ 보통", "④ 부족", "⑤ 매우 부족", "⑥ 기타"];
+        document.getElementById('respect-opts').innerHTML = respectData.map(o => 
+            `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('resEtc').classList.remove('hidden'); else document.getElementById('resEtc').classList.add('hidden')">${o}</div>`
+        ).join('');
 
-        if(document.getElementById('respect-opts') && typeof LEVEL_5_SCALE !== 'undefined') {
-            document.getElementById('respect-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('resEtc').classList.remove('hidden')">${o}</div>`).join('');
-        }
-        
-        if(document.getElementById('talk-opts') && typeof CONFIDANT_OPTIONS !== 'undefined') {
-            document.getElementById('talk-opts').innerHTML = CONFIDANT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'talk','${o}'); if('${o}'.includes('기타')) document.getElementById('talkEtc').classList.remove('hidden')">${o}</div>`).join('');
-        }
+        if(typeof CONFIDANT_OPTIONS !== 'undefined') document.getElementById('talk-opts').innerHTML = CONFIDANT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'talk','${o}'); if('${o}'.includes('기타')) document.getElementById('talkEtc').classList.remove('hidden')">${o}</div>`).join('');
         
         const diff = document.getElementById('diff-opts');
         if(diff && typeof DIFFICULTY_GROUPS !== 'undefined') {
@@ -809,6 +794,7 @@ function initAll() {
 </script>
 </body>
 </html>
+
 
 
 
