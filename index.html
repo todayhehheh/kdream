@@ -470,7 +470,7 @@ function initAll() {
         const moneyData = ["① 전혀 없음", "② 10만원 미만", "③ 10~20만원", "④ 21~30만원", "⑤ 30만원 이상"];
         document.getElementById('money-opts').innerHTML = moneyData.map(o => 
             `<div class="btn-opt" onclick="sel(this,'pocket','${o}')">${o}</div>`
-        ).join('');}
+        ).join('');
 
         // [5] 나머지 옵션들 (안전장치 추가)
         if(document.getElementById('support-opts') && typeof LEVEL_5_SCALE !== 'undefined') {
@@ -809,6 +809,7 @@ function initAll() {
 </script>
 </body>
 </html>
+
 
 
 
