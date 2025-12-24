@@ -148,7 +148,7 @@
         </div>
     </div>
 
-<div id="page-2" class="page">
+    <div id="page-2" class="page">
         <div class="card">
             <h2>2. 학업 중단 및 배경</h2>
             
@@ -186,7 +186,7 @@
 
             <div class="form-group">
                 <label>3. 학교를 그만두게 된 이유는 무엇입니까? (1순위)</label>
-                <select id="reason1" onchange="updR()"><option value="">선택</option></select>
+                <select id="reason1" onchange="updR()"><option value="">선택 (필수)</option></select>
             </div>
             <div class="form-group">
                 <label>3. 학교를 그만두게 된 이유는 무엇입니까? (2순위)</label>
@@ -421,13 +421,7 @@
             pathBox.innerHTML += `<div class="btn-opt" onclick="sel(this,'path','${p}'); ${click}">${p}</div>`;
         });
         document.getElementById('org-opts').innerHTML = ORG_DETAILS.map(o => `<div class="btn-opt" onclick="sel(this,'orgDetail','${o}')">${o}</div>`).join('');
-        // [부모님 의견]
-        const agreeBox = document.getElementById('agree-opts');
-        if(agreeBox) {
-            agreeBox.innerHTML = PARENT_OPINION.map(o => 
-                `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden'); else document.getElementById('agreeEtc').classList.add('hidden')">${o}</div>`
-            ).join('');
-        }
+
         // [가족/경제]
         document.getElementById('fam-bg-opts').innerHTML = FAMILY_BG_OPTIONS.map(o => `<div class="btn-opt" onclick="toggle(this,'famBg','${o}')">${o}</div>`).join('');
         document.getElementById('fam-type-opts').innerHTML = FAMILY_TYPE_OPTIONS.map(t => `<div class="btn-opt" onclick="sel(this,'famType','${t}'); if('${t}'=='기타') document.getElementById('famEtc').classList.remove('hidden')">${t}</div>`).join('');
@@ -439,7 +433,14 @@
         // [관계/어려움]
         document.getElementById('respect-opts').innerHTML = LEVEL_5_SCALE.map(o => `<div class="btn-opt" onclick="sel(this,'respect','${o}'); if('${o}'.includes('기타')) document.getElementById('resEtc').classList.remove('hidden')">${o}</div>`).join('');
         document.getElementById('talk-opts').innerHTML = CONFIDANT_OPTIONS.map(o => `<div class="btn-opt" onclick="sel(this,'talk','${o}'); if('${o}'.includes('기타')) document.getElementById('talkEtc').classList.remove('hidden')">${o}</div>`).join('');
-        document.getElementById('agree-opts').innerHTML = PARENT_OPINION.map(o => `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden')">${o}</div>`).join('');
+        
+        // [부모님의견] - 이곳에 명시적으로 추가
+        const agreeBox = document.getElementById('agree-opts');
+        if(agreeBox) {
+            agreeBox.innerHTML = PARENT_OPINION.map(o => 
+                `<div class="btn-opt" onclick="sel(this,'agree','${o}'); if('${o}'.includes('기타')) document.getElementById('agreeEtc').classList.remove('hidden'); else document.getElementById('agreeEtc').classList.add('hidden')">${o}</div>`
+            ).join('');
+        }
         
         const diff = document.getElementById('diff-opts');
         for(let k in DIFFICULTY_GROUPS) {
@@ -694,7 +695,8 @@
         document.getElementById('admin-list').classList.add('hidden');
         document.getElementById('report-area').classList.remove('hidden');
         document.getElementById('report-area').innerHTML = `<div style="padding:20px; border:2px solid #333;"><h2>결과</h2><pre>${JSON.stringify(d, null, 2)}</pre></div><button class="no-print btn-opt" onclick="location.reload()">닫기</button>`;
-    },
+    }
+
     // [2P] 학교 선택 시 학년 노출
     function selSchool(el, type, maxGrade) {
         sel(el, 'schLvl', type); // 값 저장 및 스타일 적용
@@ -734,5 +736,3 @@
 </script>
 </body>
 </html>
-
-
